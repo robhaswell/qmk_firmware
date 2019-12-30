@@ -123,5 +123,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
 #define RGB_MATRIX_LED_FLUSH_LIMIT 10
+#define RGB_MATRIX_STARTUP_MODE RGB_MATRIX_GRADIENT_UP_DOWN
+
+#define RGB_MATRIX_STARTUP_HUE 150
+#define RGB_MATRIX_STARTUP_SPD 112
+
 
 #include "config_led.h"
