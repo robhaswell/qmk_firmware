@@ -14,7 +14,9 @@
       "*.hpp": "cpp",
       "xstddef": "c",
       "type_traits": "c",
-      "utility": "c"
+      "utility": "c",
+      "chrono": "c",
+      "cmath": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
