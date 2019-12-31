@@ -16,7 +16,8 @@
       "type_traits": "c",
       "utility": "c",
       "chrono": "c",
-      "cmath": "c"
+      "cmath": "c",
+      "*.inc": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
