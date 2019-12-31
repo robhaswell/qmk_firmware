@@ -64,7 +64,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (!record->event.pressed) {
             uprintf("RGB: hue: %u, sat: %u, val: %u, spd: %u\n", rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, rgb_matrix_config.hsv.v, rgb_matrix_config.speed);
         }
-    #endif 
+    #endif
 
     switch (keycode) {
         case U_T_AUTO:
