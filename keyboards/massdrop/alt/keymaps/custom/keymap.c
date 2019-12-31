@@ -60,6 +60,12 @@ void matrix_scan_user(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static uint32_t key_timer;
 
+    #ifdef CONSOLE_ENABLE
+        if (!record->event.pressed) {
+            uprintf("RGB: hue: %u, sat: %u, val: %u, spd: %u\n", rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, rgb_matrix_config.hsv.v, rgb_matrix_config.speed);
+        }
+    #endif 
+
     switch (keycode) {
         case U_T_AUTO:
             if (record->event.pressed && MODS_SHIFT && MODS_CTRL) {

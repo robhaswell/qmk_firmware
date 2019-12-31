@@ -115,18 +115,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* disable action features */
 //#define NO_ACTION_LAYER
-//#define NO_ACTION_TAPPING
-//#define NO_ACTION_ONESHOT
-//#define NO_ACTION_MACRO
-//#define NO_ACTION_FUNCTION
+#define NOcN_FUNCTION
 
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
 #define RGB_MATRIX_LED_FLUSH_LIMIT 10
 #define RGB_MATRIX_STARTUP_MODE RGB_MATRIX_GRADIENT_LEFT_RIGHT
 
-#define RGB_MATRIX_STARTUP_HUE 128
-#define RGB_MATRIX_STARTUP_SPD 48
+#define RGB_MATRIX_HUE_STEP 4
+#define RGB_MATRIX_SAT_STEP 4
+#define RGB_MATRIX_VAL_STEP 4
+#define RGB_MATRIX_SPD_STEP 4
 
+#define RGB_MATRIX_STARTUP_HUE 132
+#define RGB_MATRIX_STARTUP_SPD 44
+
+// #define DEBUG_MATRIX_SCAN_RATE
 
 #include "config_led.h"
