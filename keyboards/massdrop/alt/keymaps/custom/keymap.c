@@ -61,12 +61,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static uint32_t key_timer;
 
     #ifdef CONSOLE_ENABLE
-        if (debug_enable && !record->event.pressed) {
-            uprintf("RGB: hue: %u, sat: %u, val: %u, spd: %u, mode: %u\n", rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, rgb_matrix_config.hsv.v, rgb_matrix_config.speed, rgb_matrix_config.mode);
+        if (!record->event.pressed) {
+            dprintf("RGB: hue: %u, sat: %u, val: %u, spd: %u, mode: %u\n", rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, rgb_matrix_config.hsv.v, rgb_matrix_config.speed, rgb_matrix_config.mode);
         }
     #endif
 
     switch (keycode) {
+        // case KC_3:
+        //     if (MODS_SHIFT) return true; // Ignore if shift is held.
+        //     if (record->event.pressed && (get_mods() & MOD_BIT(KC_LALT))) {
+        //         SEND_STRING(SS_UP(X_LALT) SS_TAP(X_BSLS) SS_DOWN(X_LALT));
+        //         return false;
+        //     }
+        //     return true;
         case U_T_AUTO:
             if (record->event.pressed && MODS_SHIFT && MODS_CTRL) {
                 TOGGLE_FLAG_AND_PRINT(usb_extra_manual, "USB extra port manual mode");
