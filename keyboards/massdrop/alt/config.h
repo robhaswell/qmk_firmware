@@ -127,8 +127,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_VAL_STEP 4
 #define RGB_MATRIX_SPD_STEP 4
 
-// #define RGB_MATRIX_STARTUP_HUE 132
-// #define RGB_MATRIX_STARTUP_SPD 44
+#define RGB_MATRIX_STARTUP_HUE 132
+#define RGB_MATRIX_STARTUP_SPD 44
 
 // #define DEBUG_MATRIX_SCAN_RATE
 
