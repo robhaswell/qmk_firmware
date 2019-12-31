@@ -61,8 +61,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static uint32_t key_timer;
 
     #ifdef CONSOLE_ENABLE
-        if (!record->event.pressed) {
-            uprintf("RGB: hue: %u, sat: %u, val: %u, spd: %u\n", rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, rgb_matrix_config.hsv.v, rgb_matrix_config.speed);
+        if (debug_enable && !record->event.pressed) {
+            uprintf("RGB: hue: %u, sat: %u, val: %u, spd: %u, mode: %u\n", rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, rgb_matrix_config.hsv.v, rgb_matrix_config.speed, rgb_matrix_config.mode);
         }
     #endif
 
