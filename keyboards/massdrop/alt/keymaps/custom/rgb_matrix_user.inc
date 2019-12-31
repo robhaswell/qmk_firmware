@@ -9,23 +9,27 @@ RGB_MATRIX_EFFECT(RGB_CUSTOM)
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
 #ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 
-// e.g: A simple effect, self-contained within a single method
+static bool massdrop_is_underglow(point_t point) {
+    // Massdrop ALT defines the underglow edge LEDs as being the LEDs on the edge
+    // of the matrix.
+    return (point.x <= 1 || point.y <= 1 || point.x >= 222 || point.y >= 62);
+}
+
 static bool RGB_CUSTOM(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
-    HSV     hsv   = rgb_matrix_config.hsv;
+    HSV hsv = rgb_matrix_config.hsv;
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
         // The x range will be 0..224, map this to 0..7
         // Relies on hue being 8-bit and wrapping
-        uint8_t hue = rgb_matrix_config.hsv.h;
+        uint8_t hue   = rgb_matrix_config.hsv.h;
         uint8_t speed = rgb_matrix_config.speed;
 
-        if (
-            g_led_config.point[i].x <= 1 || g_led_config.point[i].y <= 1 ||
-            g_led_config.point[i].x >= 222 || g_led_config.point[i].y >= 62) {
-          hue -= 132; // Red
-          speed -= 28; // Use fewer colours
+        if (massdrop_is_underglow(g_led_config.point[i])) {
+            // Shift the underglow colour.
+            hue -= 132;   // Red
+            speed -= 28;  // Use fewer colours
         }
         uint8_t scale = scale8(64, speed);
 
@@ -36,4 +40,4 @@ static bool RGB_CUSTOM(effect_params_t* params) {
     return led_max < DRIVER_LED_TOTAL;
 }
 
-#endif // RGB_MATRIX_CUSTOM_EFFECT_IMPLS
+#endif  // RGB_MATRIX_CUSTOM_EFFECT_IMPLS
