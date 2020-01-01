@@ -120,7 +120,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
 #define RGB_MATRIX_LED_FLUSH_LIMIT 10
-#define RGB_MATRIX_STARTUP_MODE 37 // custom
+#define RGB_MATRIX_STARTUP_MODE 38 // custom cross
 
 #define RGB_MATRIX_HUE_STEP 4
 #define RGB_MATRIX_SAT_STEP 4
