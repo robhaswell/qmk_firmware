@@ -76,11 +76,11 @@ static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t*
 }
 
 static uint8_t blend_rgb_channel(uint8_t fg_v, uint8_t bg_v, float_t pos) {
-    return fg_v + (bg_v - fg_v) * pos;
-    // float_t fg_f = fg_v / 255.0;
-    // float_t bg_f = bg_v / 255.0;
+    // return fg_v + (bg_v - fg_v) * pos;
+    float_t fg_f = fg_v / 255.0;
+    float_t bg_f = bg_v / 255.0;
 
-    // return (uint8_t)(sqrt((1-pos) * pow(fg_f, 2) + pos * pow(bg_f, 2)) * 255);
+    return (uint8_t)(sqrt((1-pos) * pow(fg_f, 2) + pos * pow(bg_f, 2)) * 255);
 }
 
 static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
@@ -97,7 +97,7 @@ static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint
 
     // Blend orange over the gradient colour
     float_t blend_pos = pow(effect / 255.0, 2);
-    RGB fg = {150, 255, 0};
+    RGB fg = {100, 255, 0};
 
     bg.r = blend_rgb_channel(fg.r, bg.r, blend_pos);
     bg.g = blend_rgb_channel(fg.g, bg.g, blend_pos);
