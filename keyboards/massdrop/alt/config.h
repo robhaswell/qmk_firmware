@@ -131,5 +131,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_STARTUP_SPD 44
 
 // #define DEBUG_MATRIX_SCAN_RATE
+#define LED_HITS_TO_REMEMBER 12
 
 #include "config_led.h"

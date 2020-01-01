@@ -5,6 +5,7 @@
 // (note the lack of semicolon after the macro!)
 RGB_MATRIX_EFFECT(RGB_CUSTOM)
 RGB_MATRIX_EFFECT(RGB_CUSTOM_MULTICROSS)
+RGB_MATRIX_EFFECT(RGB_CUSTOM_SOLID_REACTIVE_SIMPLE)
 
 // Step 2.
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
@@ -75,12 +76,44 @@ static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t*
     return led_max < DRIVER_LED_TOTAL;
 }
 
-static uint8_t blend_rgb_channel(uint8_t fg_v, uint8_t bg_v, float_t pos) {
-    // return fg_v + (bg_v - fg_v) * pos;
-    float_t fg_f = fg_v / 255.0;
-    float_t bg_f = bg_v / 255.0;
+typedef RGB (*custom_reactive_f)(RGB rgb, uint16_t offset);
 
-    return (uint8_t)(sqrt((1-pos) * pow(fg_f, 2) + pos * pow(bg_f, 2)) * 255);
+static bool custom_effect_runner_reactive(effect_params_t* params, custom_reactive_f effect_func) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+    uint16_t max_tick = 65535 / rgb_matrix_config.speed;
+    for (uint8_t i = led_min; i < led_max; i++) {
+        RGB_MATRIX_TEST_LED_FLAGS();
+        uint16_t tick = max_tick;
+        // Reverse search to find most recent key hit
+        for (int8_t j = g_last_hit_tracker.count - 1; j >= 0; j--) {
+            if (g_last_hit_tracker.index[j] == i && g_last_hit_tracker.tick[j] < tick) {
+                tick = g_last_hit_tracker.tick[j];
+                break;
+            }
+        }
+        HSV hsv = rgb_matrix_config.hsv;
+
+        // Calculate the base gradient colour.
+        hsv.h   = custom_calc_gradient_hue(&g_led_config.point[i]);
+        RGB rgb = hsv_to_rgb(hsv);
+
+        uint16_t offset = scale16by8(tick, rgb_matrix_config.speed);
+        rgb = effect_func(rgb, offset);
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
+    return led_max < DRIVER_LED_TOTAL;
+}
+
+static uint8_t blend_rgb_channel(uint8_t fg_v, uint8_t bg_v, float_t pos) {
+    return fg_v + (bg_v - fg_v) * pos;
+
+    // The following algorithm gives a better "blend" at the cost of performance.
+
+    // float_t fg_f = fg_v / 255.0;
+    // float_t bg_f = bg_v / 255.0;
+
+    // return (uint8_t)(sqrt((1-pos) * pow(fg_f, 2) + pos * pow(bg_f, 2)) * 255);
 }
 
 static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
@@ -105,5 +138,20 @@ static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint
 }
 
 static bool RGB_CUSTOM_MULTICROSS(effect_params_t* params) { return custom_effect_runner_reactive_splash(0, params, &CUSTOM_SOLID_REACTIVE_CROSS_math); }
+
+static RGB CUSTOM_SOLID_REACTIVE_SIMPLE_math(RGB bg, uint16_t effect) {
+    // effect = 0 fully highlighted, 255 fully faded
+    if (effect >= 255) return bg;
+    // Blend orange over the gradient colour
+    float_t blend_pos = pow(effect / 255.0, 2);
+    RGB fg = {100, 255, 0};
+
+    bg.r = blend_rgb_channel(fg.r, bg.r, blend_pos);
+    bg.g = blend_rgb_channel(fg.g, bg.g, blend_pos);
+    bg.b = blend_rgb_channel(fg.b, bg.b, blend_pos);
+    return bg;
+}
+
+static bool RGB_CUSTOM_SOLID_REACTIVE_SIMPLE(effect_params_t* params) { return custom_effect_runner_reactive(params, &CUSTOM_SOLID_REACTIVE_SIMPLE_math); }
 
 #endif  // RGB_MATRIX_CUSTOM_EFFECT_IMPLS
