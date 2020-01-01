@@ -124,7 +124,7 @@ static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint
     // effect = 0 fully highlighted, 255 fully faded
     if (effect >= 255) return bg;
 
-    // if (rand()/RAND_MAX < 0.001) dprintf("effect: %u\n", effect);
+    // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
 
     // Blend orange over the gradient colour
     float_t blend_pos = pow(effect / 255.0, 2);
@@ -146,7 +146,7 @@ static RGB CUSTOM_SOLID_REACTIVE_SIMPLE_math(RGB bg, uint16_t effect) {
     if (effect >= 255) return bg;
     uint8_t shifted = qsub8(effect, RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD);
     effect          = shifted * 255 / (255 - RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD);
-    if (rand()/RAND_MAX < 0.0001) dprintf("shifted: %u, effect: %u\n", shifted, effect);
+    // if (rand()/RAND_MAX < 0.0001) dprintf("shifted: %u, effect: %u\n", shifted, effect);
 
     // Blend orange over the gradient colour
     float_t blend_pos = pow(effect / 255.0, 2);
