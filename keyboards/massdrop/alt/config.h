@@ -130,7 +130,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_STARTUP_HUE 132
 #define RGB_MATRIX_STARTUP_SPD 44
 
+#define RGB_MATRIX_REACTIVE_CROSS_SPEED 60
+#define RGB_MATRIX_REACTIVE_SIMPLE_SPEED 36
+// This effectively delays the fadout of the keys, max value 254
+#define RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD 100
+
 // #define DEBUG_MATRIX_SCAN_RATE
-#define LED_HITS_TO_REMEMBER 12
+#define LED_HITS_TO_REMEMBER 20
 
 #include "config_led.h"
