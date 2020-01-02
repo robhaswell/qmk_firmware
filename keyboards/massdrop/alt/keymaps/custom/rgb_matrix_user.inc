@@ -117,12 +117,14 @@ static uint8_t blend_rgb_channel(uint8_t fg_v, uint8_t bg_v, float_t pos) {
 
 static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
     uint16_t effect = tick - dist;
-    if (effect > 255) effect = 255;
-    if (dist > 72) effect = 255;
-    if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) effect = 255;
+    // if (effect > 255) effect = 255;
+    // if (dist > 72) effect = 255;
+    // if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) effect = 255;
+    // if (effect >= 255) return bg;
 
     // effect = 0 fully highlighted, 255 fully faded
-    if (effect >= 255) return bg;
+    if (effect >= 255 || dist > 72) return bg;
+    if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) return bg;
 
     // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
 
