@@ -115,7 +115,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* disable action features */
 //#define NO_ACTION_LAYER
-#define NOcN_FUNCTION
+#define NO_ACTION_TAPPING
+#define NO_ACTION_ONESHOT
+#define NO_ACTION_MACRO
+#define NO_ACTION_FUNCTION
 
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
