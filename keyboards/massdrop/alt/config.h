@@ -138,4 +138,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #define DEBUG_MATRIX_SCAN_RATE
 #define LED_HITS_TO_REMEMBER 20
 
+/* If defined, GRAVE_ESC will always act as ESC when CTRL is held.
+ * This is userful for the Windows task manager shortcut (ctrl+shift+esc).
+ */
+#define GRAVE_ESC_CTRL_OVERRIDE
+
 #include "config_led.h"
