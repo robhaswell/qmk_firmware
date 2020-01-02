@@ -114,11 +114,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //#define NO_PRINT
 
 /* disable action features */
-//#define NO_ACTION_LAYER
-#define NO_ACTION_TAPPING
-#define NO_ACTION_ONESHOT
-#define NO_ACTION_MACRO
-#define NO_ACTION_FUNCTION
+// #define NO_ACTION_LAYER
+// #define NO_ACTION_TAPPING
+// #define NO_ACTION_ONESHOT
+// #define NO_ACTION_MACRO
+// #define NO_ACTION_FUNCTION
 
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
@@ -138,12 +138,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // This effectively delays the fadout of the keys, max value 254
 #define RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD 100
 
-// #define DEBUG_MATRIX_SCAN_RATE
 #define LED_HITS_TO_REMEMBER 20
 
 /* If defined, GRAVE_ESC will always act as ESC when CTRL is held.
  * This is userful for the Windows task manager shortcut (ctrl+shift+esc).
  */
 #define GRAVE_ESC_CTRL_OVERRIDE
+
+#define USB_POLLING_INTERVAL_MS 1
+
+// #define DEBUG_MATRIX_SCAN_RATE
 
 #include "config_led.h"
