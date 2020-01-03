@@ -11,26 +11,22 @@ RGB_MATRIX_EFFECT(RGB_CUSTOM_SOLID_REACTIVE_SIMPLE)
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
 #ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 
-static bool massdrop_is_underglow(point_t* point) {
-    // Massdrop ALT defines the underglow edge LEDs as being the LEDs on the edge
-    // of the matrix.
-    return (point->x <= 1 || point->y <= 1 || point->x >= 222 || point->y >= 62);
-}
-
-static uint8_t custom_calc_gradient_hue(point_t* point) {
+static uint8_t gradient_hue(uint8_t i) {
+    /* Calculate the custom gradient, and apply an offset gradient to the underglow. */
+    
     // The x range will be 0..224, map this to 0..7
     // Relies on hue being 8-bit and wrapping
     uint8_t hue   = rgb_matrix_config.hsv.h;
     uint8_t speed = rgb_matrix_config.speed;
 
-    if (massdrop_is_underglow(point)) {
+    if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
         // Shift the underglow colour.
         hue -= 132;   // Red
         speed -= 28;  // Use fewer colours
     }
     uint8_t scale = scale8(64, speed);
 
-    return hue + (scale * point->x >> 5);
+    return hue + (scale * g_led_config.point[i].x >> 5);
 }
 
 static bool RGB_CUSTOM(effect_params_t* params) {
@@ -40,7 +36,7 @@ static bool RGB_CUSTOM(effect_params_t* params) {
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
 
-        hsv.h   = custom_calc_gradient_hue(&g_led_config.point[i]);
+        hsv.h   = gradient_hue(i);
         RGB rgb = hsv_to_rgb(hsv);
 
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
@@ -59,7 +55,7 @@ static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t*
         HSV hsv = rgb_matrix_config.hsv;
 
         // Calculate the base gradient colour.
-        hsv.h   = custom_calc_gradient_hue(&g_led_config.point[i]);
+        hsv.h   = gradient_hue(i);
         RGB rgb = hsv_to_rgb(hsv);
 
         for (uint8_t j = start; j < count; j++) {
@@ -94,7 +90,7 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
         HSV hsv = rgb_matrix_config.hsv;
 
         // Calculate the base gradient colour.
-        hsv.h   = custom_calc_gradient_hue(&g_led_config.point[i]);
+        hsv.h   = gradient_hue(i);
         RGB rgb = hsv_to_rgb(hsv);
 
         uint16_t offset = scale16by8(tick, RGB_MATRIX_REACTIVE_SIMPLE_SPEED);
