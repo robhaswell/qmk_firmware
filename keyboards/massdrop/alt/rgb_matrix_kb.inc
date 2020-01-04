@@ -9,6 +9,15 @@ RGB_MATRIX_EFFECT(HSV_LEFT_RIGHT)
 #include "rgb_effects.inc"
 
 static bool RGB_LEFT_RIGHT(effect_params_t* params) {
+    /*
+    A left-right gradient with a separate color range for the underglow.
+
+    Colors can be specified by constants (https://beta.docs.qmk.fm/features/feature_rgblight#colors) or manually:
+
+    uint8_t KB_RIGHT[] = {RGB_MAGENTA};
+    - or -
+    uint8_t KB_RIGHT[] = {255, 0, 555};
+    */
     uint8_t KB_LEFT[] = {RGB_GREEN};
     uint8_t KB_RIGHT[] = {RGB_MAGENTA};
     uint8_t UG_LEFT[] = {RGB_BLUE};
@@ -18,7 +27,15 @@ static bool RGB_LEFT_RIGHT(effect_params_t* params) {
 }
 
 static bool HSV_LEFT_RIGHT(effect_params_t* params) {
-    uint8_t KB_LEFT[] = {HSV_GREEN};
+   /*
+    A left-right gradient with a separate color range for the underglow.
+
+    Colors can be specified by constants (https://beta.docs.qmk.fm/features/feature_rgblight#colors) or manually:
+
+    uint8_t KB_RIGHT[] = {HSV_MAGENTA};
+    - or -
+    uint8_t KB_RIGHT[] = {213, 255, 255};
+    */    uint8_t KB_LEFT[] = {HSV_GREEN};
     uint8_t KB_RIGHT[] = {HSV_MAGENTA};
     uint8_t UG_LEFT[] = {HSV_BLUE};
     uint8_t UG_RIGHT[] = {HSV_CYAN};
