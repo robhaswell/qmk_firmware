@@ -85,3 +85,26 @@ static bool hsv_gradient_left_right(effect_params_t* params, uint8_t kb_start[],
     return led_max < DRIVER_LED_TOTAL;
 }
 
+static bool rgb_gradient_left_right_cross(effect_params_t* params, uint8_t kb_start[], uint8_t kb_end[], uint8_t ug_start[], uint8_t ug_end[], uint8_t cross[], uint8_t speed) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max)
+
+    const RGB kb_start_rgb = (RGB){kb_start[1], kb_start[0], kb_start[2]};
+    const RGB kb_end_rgb = (RGB){kb_end[1], kb_end[0], kb_end[2]};
+    const RGB ug_start_rgb = (RGB){ug_start[1], ug_start[0], ug_start[2]};
+    const RGB ug_end_rgb = (RGB){ug_end[1], ug_end[0], ug_end[2]};
+    const RGB cross_rgb = (RGB){cross[1], cross[0], cross[2]};
+
+    for (uint8_t i = led_min; i < led_max; i++) {
+        RGB_MATRIX_TEST_LED_FLAGS();
+
+        RGB rgb = calc_rgb_gradient_left_right(i, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb);
+
+        // Scale the output brightness
+        rgb.r = scale8(rgb.r, rgb_matrix_config.hsv.v);
+        rgb.g = scale8(rgb.g, rgb_matrix_config.hsv.v);
+        rgb.b = scale8(rgb.b, rgb_matrix_config.hsv.v);
+
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
+    return led_max < DRIVER_LED_TOTAL;
+}
