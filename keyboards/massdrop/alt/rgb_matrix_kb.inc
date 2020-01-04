@@ -35,7 +35,8 @@ static bool HSV_LEFT_RIGHT(effect_params_t* params) {
     uint8_t KB_RIGHT[] = {HSV_MAGENTA};
     - or -
     uint8_t KB_RIGHT[] = {213, 255, 255};
-    */    uint8_t KB_LEFT[] = {HSV_GREEN};
+    */
+    uint8_t KB_LEFT[] = {HSV_GREEN};
     uint8_t KB_RIGHT[] = {HSV_MAGENTA};
     uint8_t UG_LEFT[] = {HSV_BLUE};
     uint8_t UG_RIGHT[] = {HSV_CYAN};
