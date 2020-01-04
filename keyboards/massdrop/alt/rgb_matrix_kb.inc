@@ -125,12 +125,15 @@ static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint
     // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
 
     // Blend orange over the gradient colour
-    float_t blend_pos = pow(effect / 255.0, 2);
+    // float_t blend_pos = pow(effect / 255.0, 2);
     RGB     fg        = {100, 255, 0};
 
-    bg.r = blend_rgb_channel(fg.r, bg.r, blend_pos);
-    bg.g = blend_rgb_channel(fg.g, bg.g, blend_pos);
-    bg.b = blend_rgb_channel(fg.b, bg.b, blend_pos);
+    bg.r = fg.r + (bg.r - fg.r) * effect / 255;
+    bg.g = fg.g + (bg.g - fg.g) * effect / 255;
+    bg.b = fg.b + (bg.b - fg.b) * effect / 255;
+    // bg.r = blend_rgb_channel(fg.r, bg.r, blend_pos);
+    // bg.g = blend_rgb_channel(fg.g, bg.g, blend_pos);
+    // bg.b = blend_rgb_channel(fg.b, bg.b, blend_pos);
     return bg;
 }
 
