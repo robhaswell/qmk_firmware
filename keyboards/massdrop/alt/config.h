@@ -124,4 +124,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
 #define RGB_MATRIX_LED_FLUSH_LIMIT 10
 
+// Enable custom effects
+#define RGB_MATRIX_CUSTOM_KB
+
+// Load our custom effects at startup
+#define RGB_MATRIX_STARTUP_MODE 36 // The first custom effect
+
+#define DEBUG_MATRIX_SCAN_RATE
+
 #include "config_led.h"

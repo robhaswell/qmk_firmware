@@ -2,6 +2,8 @@
 .dep
 *.o
 *.bin
+*.exe
+*.bat
 *.eep
 *.elf
 *.hex
@@ -73,3 +75,6 @@ id_rsa_*
 
 # python things
 __pycache__
+
+# custom keymaps
+keyboards/**/keymaps/custom/*
