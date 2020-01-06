@@ -129,9 +129,9 @@ static RGB calc_solid_reactive_cross(RGB rgb, int16_t dx, int16_t dy, uint8_t di
     effect += dx > dy ? dy : dx;
     if (effect > 255) effect = 255;
 
-    rgb.r = blend_channel(rgb.r, cross_rgb.r, effect, 255);
-    rgb.g = blend_channel(rgb.g, cross_rgb.g, effect, 255);
-    rgb.b = blend_channel(rgb.b, cross_rgb.b, effect, 255);
+    rgb.r = blend_channel(cross_rgb.r, rgb.r, effect, 255);
+    rgb.g = blend_channel(cross_rgb.g, rgb.g, effect, 255);
+    rgb.b = blend_channel(cross_rgb.b, rgb.b, effect, 255);
     return rgb;
 }
 
