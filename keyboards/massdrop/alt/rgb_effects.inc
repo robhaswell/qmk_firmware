@@ -4,9 +4,12 @@
 
 // A smooth gradient from one RGB value to another
 
-// Calculate the new RGB channel value based on a distance of 224 (for a left-right gradient only)
-static uint8_t blend_channel(uint8_t start, uint8_t end, uint8_t dist, uint8_t max) {
-    return start + (end - start) * dist / max;
+static uint8_t blend(uint8_t start, uint8_t end, uint8_t numer, uint8_t denom) {
+    return start + (end - start) * numer / denom;
+}
+
+static uint8_t blend8(uint8_t start, uint8_t end, uint8_t numer) {
+    return start + scale8(end - start, numer);
 }
 
 static RGB calc_rgb_gradient_left_right(uint8_t i, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb) {
@@ -15,15 +18,15 @@ static RGB calc_rgb_gradient_left_right(uint8_t i, RGB kb_start_rgb, RGB kb_end_
     // Calculate the channel values
     if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
         return (RGB){
-            blend_channel(ug_start_rgb.g, ug_end_rgb.g, dx, 224),
-            blend_channel(ug_start_rgb.r, ug_end_rgb.r, dx, 224),
-            blend_channel(ug_start_rgb.b, ug_end_rgb.b, dx, 224),
+            blend(ug_start_rgb.g, ug_end_rgb.g, dx, 224),
+            blend(ug_start_rgb.r, ug_end_rgb.r, dx, 224),
+            blend(ug_start_rgb.b, ug_end_rgb.b, dx, 224),
         };
     } else {
         return (RGB){
-            blend_channel(kb_start_rgb.g, kb_end_rgb.g, dx, 224),
-            blend_channel(kb_start_rgb.r, kb_end_rgb.r, dx, 224),
-            blend_channel(kb_start_rgb.b, kb_end_rgb.b, dx, 224),
+            blend(kb_start_rgb.g, kb_end_rgb.g, dx, 224),
+            blend(kb_start_rgb.r, kb_end_rgb.r, dx, 224),
+            blend(kb_start_rgb.b, kb_end_rgb.b, dx, 224),
         };
     }
 }
@@ -127,11 +130,11 @@ static RGB calc_solid_reactive_cross(RGB rgb, int16_t dx, int16_t dy, uint8_t di
     dx              = dx * 16 > 255 ? 255 : dx * 16;
     dy              = dy * 16 > 255 ? 255 : dy * 16;
     effect += dx > dy ? dy : dx;
-    if (effect > 255) effect = 255;
+    if (effect >= 255) return rgb;
 
-    rgb.r = blend_channel(cross_rgb.r, rgb.r, effect, 255);
-    rgb.g = blend_channel(cross_rgb.g, rgb.g, effect, 255);
-    rgb.b = blend_channel(cross_rgb.b, rgb.b, effect, 255);
+    rgb.r = blend8(cross_rgb.r, rgb.r, effect);
+    rgb.g = blend8(cross_rgb.g, rgb.g, effect);
+    rgb.b = blend8(cross_rgb.b, rgb.b, effect);
     return rgb;
 }
 
@@ -145,4 +148,86 @@ static bool rgb_gradient_left_right_cross(effect_params_t* params, uint8_t kb_st
     const RGB cross_rgb = (RGB){cross[1], cross[0], cross[2]};
     
     return custom_effect_runner_reactive_splash(0, params, &calc_solid_reactive_cross, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, cross_rgb, speed);
+}
+
+static RGB calc_solid_reactive_nexus(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick, RGB cross_rgb) {
+    uint16_t effect = tick - dist;
+    if (effect > 255) effect = 255;
+    if (dist > 72) effect = 255;
+    if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) effect = 255;
+    if (effect >= 255) return rgb;
+
+    rgb.r = blend8(cross_rgb.r, rgb.r, effect);
+    rgb.g = blend8(cross_rgb.g, rgb.g, effect);
+    rgb.b = blend8(cross_rgb.b, rgb.b, effect);
+    return rgb;
+}
+
+static bool rgb_gradient_left_right_nexus(effect_params_t* params, uint8_t kb_start[], uint8_t kb_end[], uint8_t ug_start[], uint8_t ug_end[], uint8_t cross[], uint8_t speed) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max)
+
+    const RGB kb_start_rgb = (RGB){kb_start[1], kb_start[0], kb_start[2]};
+    const RGB kb_end_rgb = (RGB){kb_end[1], kb_end[0], kb_end[2]};
+    const RGB ug_start_rgb = (RGB){ug_start[1], ug_start[0], ug_start[2]};
+    const RGB ug_end_rgb = (RGB){ug_end[1], ug_end[0], ug_end[2]};
+    const RGB cross_rgb = (RGB){cross[1], cross[0], cross[2]};
+    
+    return custom_effect_runner_reactive_splash(0, params, &calc_solid_reactive_nexus, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, cross_rgb, speed);
+}
+
+typedef RGB (*custom_reactive_f)(RGB rgb, uint16_t offset, RGB key_rgb);
+
+static bool custom_effect_runner_reactive(effect_params_t* params, custom_reactive_f effect_func, bg_f bg_func, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb, RGB key_rgb, uint8_t speed) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+    uint16_t max_tick = 65535 / speed;
+    for (uint8_t i = led_min; i < led_max; i++) {
+        RGB_MATRIX_TEST_LED_FLAGS();
+
+        uint16_t tick = max_tick;
+        // Reverse search to find most recent key hit
+        for (int8_t j = g_last_hit_tracker.count - 1; j >= 0; j--) {
+            if (g_last_hit_tracker.index[j] == i && g_last_hit_tracker.tick[j] < tick) {
+                tick = g_last_hit_tracker.tick[j];
+                break;
+            }
+        }
+
+        uint16_t offset = scale16by8(tick, speed);
+        RGB rgb = calc_rgb_gradient_left_right(i, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb);
+            rgb = effect_func(rgb, offset, key_rgb);
+
+        // Scale the output brightness
+        rgb.r = scale8(rgb.r, rgb_matrix_config.hsv.v);
+        rgb.g = scale8(rgb.g, rgb_matrix_config.hsv.v);
+        rgb.b = scale8(rgb.b, rgb_matrix_config.hsv.v);
+
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
+    return led_max < DRIVER_LED_TOTAL;
+}
+
+static RGB calc_solid_reactive_single(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick, RGB cross_rgb) {
+    uint16_t effect = tick - dist;
+    if (effect > 255) effect = 255;
+    if (dist > 72) effect = 255;
+    if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) effect = 255;
+    if (effect >= 255) return rgb;
+
+    rgb.r = blend8(cross_rgb.r, rgb.r, effect);
+    rgb.g = blend8(cross_rgb.g, rgb.g, effect);
+    rgb.b = blend8(cross_rgb.b, rgb.b, effect);
+    return rgb;
+}
+
+static bool rgb_gradient_left_right_single(effect_params_t* params, uint8_t kb_start[], uint8_t kb_end[], uint8_t ug_start[], uint8_t ug_end[], uint8_t key[], uint8_t speed) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max)
+
+    const RGB kb_start_rgb = (RGB){kb_start[1], kb_start[0], kb_start[2]};
+    const RGB kb_end_rgb = (RGB){kb_end[1], kb_end[0], kb_end[2]};
+    const RGB ug_start_rgb = (RGB){ug_start[1], ug_start[0], ug_start[2]};
+    const RGB ug_end_rgb = (RGB){ug_end[1], ug_end[0], ug_end[2]};
+    const RGB key_rgb = (RGB){key[1], key[0], key[2]};
+    
+    return custom_effect_runner_reactive(0, params, &calc_solid_reactive_single, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, key_rgb, speed);
 }
