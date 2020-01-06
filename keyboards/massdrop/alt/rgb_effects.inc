@@ -8,10 +8,6 @@ static uint8_t blend(uint8_t start, uint8_t end, uint8_t numer, uint8_t denom) {
     return start + (end - start) * numer / denom;
 }
 
-static uint8_t blend8(uint8_t start, uint8_t end, uint8_t numer) {
-    return start + scale8(end - start, numer);
-}
-
 static RGB calc_rgb_gradient_left_right(uint8_t i, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb) {
     uint8_t dx = g_led_config.point[i].x;
 
