@@ -119,7 +119,7 @@ static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t*
     return led_max < DRIVER_LED_TOTAL;
 }
 
-static RGB calc_solid_reactive_cross(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick, RGB cross_rgb) {
+static RGB calc_custom_reactive_cross(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick, RGB cross_rgb) {
     uint16_t effect = tick + dist;
     dx              = dx < 0 ? dx * -1 : dx;
     dy              = dy < 0 ? dy * -1 : dy;
@@ -143,10 +143,10 @@ static bool rgb_gradient_left_right_cross(effect_params_t* params, uint8_t kb_st
     const RGB ug_end_rgb = (RGB){ug_end[1], ug_end[0], ug_end[2]};
     const RGB cross_rgb = (RGB){cross[1], cross[0], cross[2]};
     
-    return custom_effect_runner_reactive_splash(0, params, &calc_solid_reactive_cross, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, cross_rgb, speed);
+    return custom_effect_runner_reactive_splash(0, params, &calc_custom_reactive_cross, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, cross_rgb, speed);
 }
 
-static RGB calc_solid_reactive_nexus(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick, RGB cross_rgb) {
+static RGB calc_custom_reactive_nexus(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick, RGB cross_rgb) {
     uint16_t effect = tick - dist;
     if (effect > 255) effect = 255;
     if (dist > 72) effect = 255;
@@ -168,7 +168,7 @@ static bool rgb_gradient_left_right_nexus(effect_params_t* params, uint8_t kb_st
     const RGB ug_end_rgb = (RGB){ug_end[1], ug_end[0], ug_end[2]};
     const RGB cross_rgb = (RGB){cross[1], cross[0], cross[2]};
     
-    return custom_effect_runner_reactive_splash(0, params, &calc_solid_reactive_nexus, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, cross_rgb, speed);
+    return custom_effect_runner_reactive_splash(0, params, &calc_custom_reactive_nexus, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, cross_rgb, speed);
 }
 
 typedef RGB (*custom_reactive_f)(RGB rgb, uint16_t offset, RGB key_rgb);
@@ -203,16 +203,13 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
     return led_max < DRIVER_LED_TOTAL;
 }
 
-static RGB calc_solid_reactive_single(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick, RGB cross_rgb) {
-    uint16_t effect = tick - dist;
-    if (effect > 255) effect = 255;
-    if (dist > 72) effect = 255;
-    if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) effect = 255;
-    if (effect >= 255) return rgb;
+static RGB calc_custom_reactive_single(RGB rgb, uint16_t offset, RGB key_rgb) {
+    if (offset >= 255) return rgb;
+    uint8_t effect = offset > 255 ? 255 : offset;
 
-    rgb.r = blend8(cross_rgb.r, rgb.r, effect);
-    rgb.g = blend8(cross_rgb.g, rgb.g, effect);
-    rgb.b = blend8(cross_rgb.b, rgb.b, effect);
+    rgb.r = blend8(key_rgb.r, rgb.r, effect);
+    rgb.g = blend8(key_rgb.g, rgb.g, effect);
+    rgb.b = blend8(key_rgb.b, rgb.b, effect);
     return rgb;
 }
 
@@ -225,5 +222,5 @@ static bool rgb_gradient_left_right_single(effect_params_t* params, uint8_t kb_s
     const RGB ug_end_rgb = (RGB){ug_end[1], ug_end[0], ug_end[2]};
     const RGB key_rgb = (RGB){key[1], key[0], key[2]};
     
-    return custom_effect_runner_reactive(0, params, &calc_solid_reactive_single, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, key_rgb, speed);
+    return custom_effect_runner_reactive(params, &calc_custom_reactive_single, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, key_rgb, speed);
 }
