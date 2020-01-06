@@ -85,6 +85,33 @@ static bool hsv_gradient_left_right(effect_params_t* params, uint8_t kb_start[],
     return led_max < DRIVER_LED_TOTAL;
 }
 
+typedef RGB (*reactive_splash_f)(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick);
+
+typedef RGB (*bg_f)(uint8_t i, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb);
+
+bool effect_runner_reactive_splash(uint8_t start, effect_params_t* params, reactive_splash_f effect_func, bg_f bg_func, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb, RGB cross_rgb) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+    uint8_t count = g_last_hit_tracker.count;
+    for (uint8_t i = led_min; i < led_max; i++) {
+        RGB_MATRIX_TEST_LED_FLAGS();
+
+        RGB rgb = calc_rgb_gradient_left_right(i, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb);
+
+        for (uint8_t j = start; j < count; j++) {
+            int16_t  dx   = g_led_config.point[i].x - g_last_hit_tracker.x[j];
+            int16_t  dy   = g_led_config.point[i].y - g_last_hit_tracker.y[j];
+            uint8_t  dist = sqrt16(dx * dx + dy * dy);
+            uint16_t tick = scale16by8(g_last_hit_tracker.tick[j], rgb_matrix_config.speed);
+            hsv           = effect_func(hsv, dx, dy, dist, tick);
+        }
+        hsv.v   = scale8(hsv.v, rgb_matrix_config.hsv.v);
+        RGB rgb = hsv_to_rgb(hsv);
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
+    return led_max < DRIVER_LED_TOTAL;
+}
+
 static bool rgb_gradient_left_right_cross(effect_params_t* params, uint8_t kb_start[], uint8_t kb_end[], uint8_t ug_start[], uint8_t ug_end[], uint8_t cross[], uint8_t speed) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max)
 
@@ -93,6 +120,9 @@ static bool rgb_gradient_left_right_cross(effect_params_t* params, uint8_t kb_st
     const RGB ug_start_rgb = (RGB){ug_start[1], ug_start[0], ug_start[2]};
     const RGB ug_end_rgb = (RGB){ug_end[1], ug_end[0], ug_end[2]};
     const RGB cross_rgb = (RGB){cross[1], cross[0], cross[2]};
+    
+
+    return custom_effect_runner_reactive_splash(0, params, &calc_solid_reactive_cross, &calc_rgb_gradient_left_right, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb, cross_rgb);
 
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
