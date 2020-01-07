@@ -58,7 +58,12 @@ static RGB calc_rgb_gradient_left_right(uint8_t i, RGB kb_start_rgb, RGB kb_end_
 static RGB calc_rgb_gradient_left_right_exp(uint8_t i, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb) {
     int8_t sdx   = g_led_config.point[i].x - 112; // -112 - +112
     float_t dx_f = sdx / 112.0; // -1 - +1
-    uint8_t dx   = (cbrt(dx_f) + 1) / 2 * 255;
+    if (dx_f >= 0) {
+        dx_f = sqrt(dx_f);
+    } else {
+        dx_f = -sqrt(-dx_f);
+    }
+    uint8_t dx   = (dx_f + 1) / 2 * 255;
 
     // Calculate the channel values
     if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
