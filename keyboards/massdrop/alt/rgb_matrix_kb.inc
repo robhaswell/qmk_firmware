@@ -13,7 +13,7 @@ RGB_MATRIX_EFFECT(RGB_CUSTOM_SOLID_REACTIVE_SIMPLE)
 
 static uint8_t gradient_hue(uint8_t i) {
     /* Calculate the custom gradient, and apply an offset gradient to the underglow. */
-    
+
     // The x range will be 0..224, map this to 0..7
     // Relies on hue being 8-bit and wrapping
     uint8_t hue   = rgb_matrix_config.hsv.h;
@@ -89,7 +89,7 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
         }
         HSV hsv = rgb_matrix_config.hsv;
 
-        // Calculate the base gradient colour.
+        // Calculate the base gradient colour
         hsv.h   = gradient_hue(i);
         RGB rgb = hsv_to_rgb(hsv);
 
@@ -100,24 +100,20 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
     return led_max < DRIVER_LED_TOTAL;
 }
 
-static uint8_t blend_rgb_channel(uint8_t fg_v, uint8_t bg_v, float_t pos) {
-    // return fg_v + (bg_v - fg_v) * pos;
+static RGB rgb_sqrt_blend(RGB a, RGB b, uint8_t t) {
+    RGB rgb;
+    // Compress the effect so the highlight is more pronounced
+    t     = t * t / 255;
+    // Blend RGB channels
+    rgb.r = sqrt16(scale16by8(a.r * a.r, (255 - t)) + scale16by8(b.r * b.r, t));
+    rgb.g = sqrt16(scale16by8(a.g * a.g, (255 - t)) + scale16by8(b.g * b.g, t));
+    rgb.b = sqrt16(scale16by8(a.b * a.b, (255 - t)) + scale16by8(b.b * b.b, t));
 
-    // The following algorithm gives a better "blend" at the cost of performance.
-
-    float_t fg_f = fg_v / 255.0;
-    float_t bg_f = bg_v / 255.0;
-
-    return (uint8_t)(sqrt((1 - pos) * pow(fg_f, 2) + pos * pow(bg_f, 2)) * 255);
+    return rgb;
 }
 
 static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
     uint16_t effect = tick - dist;
-    // if (effect > 255) effect = 255;
-    // if (dist > 72) effect = 255;
-    // if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) effect = 255;
-    // if (effect >= 255) return bg;
-
     // effect = 0 fully highlighted, 255 fully faded
     if (effect >= 255 || dist > 72) return bg;
     if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) return bg;
@@ -125,12 +121,8 @@ static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint
     // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
 
     // Blend orange over the gradient colour
-    float_t blend_pos = pow(effect / 255.0, 2);
-    RGB     fg        = {100, 255, 0};
-
-    bg.r = blend_rgb_channel(fg.r, bg.r, blend_pos);
-    bg.g = blend_rgb_channel(fg.g, bg.g, blend_pos);
-    bg.b = blend_rgb_channel(fg.b, bg.b, blend_pos);
+    RGB fg = {100, 255, 0};
+    bg     = rgb_sqrt_blend(fg, bg, effect);
     return bg;
 }
 
@@ -142,17 +134,15 @@ static bool RGB_CUSTOM_MULTICROSS(effect_params_t* params) {
 static RGB CUSTOM_SOLID_REACTIVE_SIMPLE_math(RGB bg, uint16_t effect) {
     // effect = 0 fully highlighted, 255 fully faded
     if (effect >= 255) return bg;
+
+    // Hold the effect after initial keypress for a short time
     uint8_t shifted = qsub8(effect, RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD);
     effect          = shifted * 255 / (255 - RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD);
     // if (rand()/RAND_MAX < 0.0001) dprintf("shifted: %u, effect: %u\n", shifted, effect);
 
     // Blend orange over the gradient colour
-    float_t blend_pos = pow(effect / 255.0, 2);
-    RGB     fg        = {100, 255, 0};
-
-    bg.r = blend_rgb_channel(fg.r, bg.r, blend_pos);
-    bg.g = blend_rgb_channel(fg.g, bg.g, blend_pos);
-    bg.b = blend_rgb_channel(fg.b, bg.b, blend_pos);
+    RGB fg = {100, 255, 0};
+    bg = rgb_sqrt_blend(fg, bg, effect);
     return bg;
 }
 
