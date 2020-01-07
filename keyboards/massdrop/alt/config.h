@@ -116,16 +116,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* disable action features */
 // #define NO_ACTION_LAYER
 // #define NO_ACTION_TAPPING
-// #define NO_ACTION_ONESHOT
-// #define NO_ACTION_MACRO
-// #define NO_ACTION_FUNCTION
+#define NO_ACTION_ONESHOT
+#define NO_ACTION_MACRO
+#define NO_ACTION_FUNCTION
 
 #define LINK_TIME_OPTIMIZATION_ENABLE
 
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
 #define RGB_MATRIX_LED_FLUSH_LIMIT 10
-#define RGB_MATRIX_STARTUP_MODE 38 // custom cross
+#define RGB_MATRIX_STARTUP_MODE RGB_MATRIX_CUSTOM_RGB_CUSTOM_MULTICROSS
 
 #define RGB_MATRIX_HUE_STEP 4
 #define RGB_MATRIX_SAT_STEP 4
@@ -135,6 +135,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_STARTUP_HUE 132
 #define RGB_MATRIX_STARTUP_SPD 44
 
+#define RGB_MATRIX_REACTIVE_HIGHLIGHT {100, 255, 0} // Warning!! GRB!!
 #define RGB_MATRIX_REACTIVE_CROSS_SPEED 60
 #define RGB_MATRIX_REACTIVE_SIMPLE_SPEED 36
 // This effectively delays the fadout of the keys, max value 254

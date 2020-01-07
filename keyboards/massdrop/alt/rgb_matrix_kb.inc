@@ -120,8 +120,8 @@ static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint
 
     // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
 
-    // Blend orange over the gradient colour
-    RGB fg = {100, 255, 0};
+    // Blend highlight over the gradient colour
+    RGB fg = RGB_MATRIX_REACTIVE_HIGHLIGHT;
     bg     = rgb_sqrt_blend(fg, bg, effect);
     return bg;
 }
@@ -140,8 +140,8 @@ static RGB CUSTOM_SOLID_REACTIVE_SIMPLE_math(RGB bg, uint16_t effect) {
     effect          = shifted * 255 / (255 - RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD);
     // if (rand()/RAND_MAX < 0.0001) dprintf("shifted: %u, effect: %u\n", shifted, effect);
 
-    // Blend orange over the gradient colour
-    RGB fg = {100, 255, 0};
+    // Blend highlight over the gradient colour
+    RGB fg = RGB_MATRIX_REACTIVE_HIGHLIGHT;
     bg = rgb_sqrt_blend(fg, bg, effect);
     return bg;
 }
