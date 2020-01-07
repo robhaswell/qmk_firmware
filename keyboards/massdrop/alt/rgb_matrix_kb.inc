@@ -14,12 +14,24 @@ static bool CUSTOM_EFFECT(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
     HSV     hsv   = rgb_matrix_config.hsv;
-    uint8_t scale = scale8(64, rgb_matrix_config.speed);
+    uint8_t hue   = rgb_matrix_config.hsv.h;
+    uint8_t speed = rgb_matrix_config.speed;
+
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
         // The y range will be 0..224, map this to 0..5
         // Relies on hue being 8-bit and wrapping
-        hsv.h   = rgb_matrix_config.hsv.h + (scale * g_led_config.point[i].x >> 5);
+        uint8_t x = g_led_config.point[i].x;
+        uint8_t y = g_led_config.point[i].y;
+
+        // Shift hue and speed for edge lighting
+        if (x <= 1 || x >= 224 || y <= 1 || y >= 64) {
+            hue = 0;
+            speed = 28;
+        }
+        uint8_t scale = scale8(64, speed);
+
+        hsv.h   = hue + (scale * g_led_config.point[i].x >> 5);
         RGB rgb = hsv_to_rgb(hsv);
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
