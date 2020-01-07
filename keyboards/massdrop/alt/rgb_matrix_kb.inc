@@ -21,11 +21,9 @@ static bool CUSTOM_EFFECT(effect_params_t* params) {
         RGB_MATRIX_TEST_LED_FLAGS();
         // The y range will be 0..224, map this to 0..5
         // Relies on hue being 8-bit and wrapping
-        uint8_t x = g_led_config.point[i].x;
-        uint8_t y = g_led_config.point[i].y;
 
         // Shift hue and speed for edge lighting
-        if (x <= 1 || x >= 224 || y <= 1 || y >= 64) {
+        if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
             hue = 0;
             speed = 28;
         }
