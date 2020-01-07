@@ -55,6 +55,27 @@ static RGB calc_rgb_gradient_left_right(uint8_t i, RGB kb_start_rgb, RGB kb_end_
     }
 }
 
+static RGB calc_rgb_gradient_left_right_exp(uint8_t i, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb) {
+    int8_t sdx   = g_led_config.point[i].x - 112; // -112 - +112
+    float_t dx_f = sdx / 112.0; // -1 - +1
+    uint8_t dx   = (cbrt(dx_f) + 1) / 2 * 255;
+
+    // Calculate the channel values
+    if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
+        return (RGB){
+            blend8(ug_start_rgb.g, ug_end_rgb.g, dx),
+            blend8(ug_start_rgb.r, ug_end_rgb.r, dx),
+            blend8(ug_start_rgb.b, ug_end_rgb.b, dx),
+        };
+    } else {
+        return (RGB){
+            blend8(kb_start_rgb.g, kb_end_rgb.g, dx),
+            blend8(kb_start_rgb.r, kb_end_rgb.r, dx),
+            blend8(kb_start_rgb.b, kb_end_rgb.b, dx),
+        };
+    }
+}
+
 static HSV calc_hsv_gradient_left_right(uint8_t i, HSV kb_start_hsv, HSV kb_end_hsv, HSV ug_start_hsv, HSV ug_end_hsv) {
     uint8_t dx = g_led_config.point[i].x;
 
@@ -76,11 +97,11 @@ static HSV calc_hsv_gradient_left_right(uint8_t i, HSV kb_start_hsv, HSV kb_end_
     return hsv;
 }
 
-static RGB  calc_rgb_gradient_left_right_via_hsv(uint8_t i, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb) {
+static RGB calc_rgb_gradient_left_right_via_hsv(uint8_t i, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb) {
     HSV kb_start_hsv = custom_rgb_to_hsv(kb_start_rgb);
-    HSV kb_end_hsv = custom_rgb_to_hsv(kb_end_rgb);
+    HSV kb_end_hsv   = custom_rgb_to_hsv(kb_end_rgb);
     HSV ug_start_hsv = custom_rgb_to_hsv(ug_start_rgb);
-    HSV ug_end_hsv = custom_rgb_to_hsv(ug_end_rgb);
+    HSV ug_end_hsv   = custom_rgb_to_hsv(ug_end_rgb);
 
     return hsv_to_rgb(calc_hsv_gradient_left_right(i, kb_start_hsv, kb_end_hsv, ug_start_hsv, ug_end_hsv));
 }
@@ -130,6 +151,30 @@ static bool hsv_gradient_left_right(effect_params_t* params, uint8_t kb_start[],
     return led_max < DRIVER_LED_TOTAL;
 }
 
+static bool rgb_gradient_left_right_exp(effect_params_t* params, uint8_t kb_start[], uint8_t kb_end[], uint8_t ug_start[], uint8_t ug_end[]) {
+    // Calculate a smooth gradient but with an exponent to compress the transition
+    RGB_MATRIX_USE_LIMITS(led_min, led_max)
+
+    const RGB kb_start_rgb = (RGB){kb_start[1], kb_start[0], kb_start[2]};
+    const RGB kb_end_rgb   = (RGB){kb_end[1], kb_end[0], kb_end[2]};
+    const RGB ug_start_rgb = (RGB){ug_start[1], ug_start[0], ug_start[2]};
+    const RGB ug_end_rgb   = (RGB){ug_end[1], ug_end[0], ug_end[2]};
+
+    for (uint8_t i = led_min; i < led_max; i++) {
+        RGB_MATRIX_TEST_LED_FLAGS();
+
+        RGB rgb = calc_rgb_gradient_left_right_exp(i, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb);
+
+        // Scale the output brightness
+        rgb.r = scale8(rgb.r, rgb_matrix_config.hsv.v);
+        rgb.g = scale8(rgb.g, rgb_matrix_config.hsv.v);
+        rgb.b = scale8(rgb.b, rgb_matrix_config.hsv.v);
+
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
+    return led_max < DRIVER_LED_TOTAL;
+}
+
 typedef RGB (*custom_reactive_splash_f)(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick, RGB cross_rgb);
 
 typedef RGB (*bg_f)(uint8_t i, RGB kb_start_rgb, RGB kb_end_rgb, RGB ug_start_rgb, RGB ug_end_rgb);
@@ -141,7 +186,12 @@ static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t*
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
 
-        RGB rgb = calc_rgb_gradient_left_right(i, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb);
+        RGB rgb;
+        if (kb_start_rgb.r == kb_end_rgb.r && kb_start_rgb.r == ug_start_rgb.r && kb_start_rgb.r == ug_end_rgb.r && kb_start_rgb.g == kb_end_rgb.g && kb_start_rgb.g == ug_start_rgb.g && kb_start_rgb.g == ug_end_rgb.g && kb_start_rgb.b == kb_end_rgb.b && kb_start_rgb.b == ug_start_rgb.b && kb_start_rgb.b == ug_end_rgb.b) {
+            rgb = kb_start_rgb;
+        } else {
+            rgb = calc_rgb_gradient_left_right(i, kb_start_rgb, kb_end_rgb, ug_start_rgb, ug_end_rgb);
+        }
 
         for (uint8_t j = start; j < count; j++) {
             int16_t  dx   = g_led_config.point[i].x - g_last_hit_tracker.x[j];
@@ -247,6 +297,7 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
 static RGB calc_custom_reactive_single(RGB rgb, uint16_t offset, RGB key_rgb) {
     if (offset >= 255) return rgb;
     uint8_t effect = offset > 255 ? 255 : offset;
+    effect = pow(effect, 2) / 255;
 
     rgb.r = blend8(key_rgb.r, rgb.r, effect);
     rgb.g = blend8(key_rgb.g, rgb.g, effect);
