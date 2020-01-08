@@ -122,6 +122,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define LINK_TIME_OPTIMIZATION_ENABLE
 
+// Tap dance interval
+#define TAPPING_TERM 200
+
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
 #define RGB_MATRIX_LED_FLUSH_LIMIT 10
