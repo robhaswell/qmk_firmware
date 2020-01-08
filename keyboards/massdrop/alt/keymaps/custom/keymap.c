@@ -73,9 +73,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 static uint32_t flash_timer;
 static uint32_t key_timer;
 
-static bool rgb_flash;
 static bool idle;
 static bool reset;
+static bool demo_toggle;
+static bool rgb_flash;
 
 static uint8_t user_hsv_v;
 
@@ -88,6 +89,21 @@ void matrix_init_user(void) {
 void matrix_scan_user(void) {
     if (reset && timer_elapsed32(key_timer) > 500) {
         reset_keyboard();
+    }
+
+    if (demo_toggle && timer_elapsed32(key_timer) > 1000) {
+        dprintf("Demo mode toggle\n");
+        demo_toggle = false;
+
+        if (layer_state_is(3)) {
+            layer_off(3);
+        } else {
+            layer_on(3);
+        }
+
+        rgb_matrix_config.hsv.h += 128;
+        flash_timer = timer_read32();
+        rgb_flash = true;
     }
 
     if (rgb_flash && timer_elapsed32(flash_timer) > 500) {
@@ -125,21 +141,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         //     }
         //     return true;
         case RH_DEMO:
-            if (!record->event.pressed) {
-                if (timer_elapsed32(key_timer) >= 1000) {
-                    dprintf("Demo mode toggle\n");
-
-                    if (layer_state_is(3)) {
-                        layer_off(3);
-                    } else {
-                        layer_on(3);
-                    }
-
-                    rgb_matrix_config.hsv.h += 128;
-                    flash_timer = timer_read32();
-                    rgb_flash = true;
-                }
-            }
+            demo_toggle = record->event.pressed;
             return false;
         case U_T_AUTO:
             if (record->event.pressed && MODS_SHIFT && MODS_CTRL) {
