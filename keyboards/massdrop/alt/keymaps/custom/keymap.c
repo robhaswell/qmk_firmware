@@ -73,8 +73,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 static uint32_t flash_timer;
 static uint32_t key_timer;
 
-static bool flashing;
+static bool rgb_flash;
 static bool idle;
+static bool reset;
 
 static uint8_t user_hsv_v;
 
@@ -85,8 +86,12 @@ void matrix_init_user(void) {
 
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
-    if (flashing && timer_elapsed32(flash_timer) > 500) {
-        flashing = false;
+    if (reset && timer_elapsed32(key_timer) > 500) {
+        reset_keyboard();
+    }
+
+    if (rgb_flash && timer_elapsed32(flash_timer) > 500) {
+        rgb_flash = false;
         rgb_matrix_config.hsv.h += 128;
     }
 
@@ -104,6 +109,8 @@ void matrix_scan_user(void) {
 #define MODS_ALT  (get_mods() & MOD_BIT(KC_LALT) || get_mods() & MOD_BIT(KC_RALT))
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    key_timer = timer_read32();
+
     if (idle) { // Detect return from idle
         idle = false;
         rgb_matrix_config.hsv.v = user_hsv_v;
@@ -130,7 +137,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
                     rgb_matrix_config.hsv.h += 128;
                     flash_timer = timer_read32();
-                    flashing = true;
+                    rgb_flash = true;
                 }
             }
             return false;
@@ -165,11 +172,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         case MD_BOOT:
-            if (!record->event.pressed) {
-                if (timer_elapsed32(key_timer) >= 500) {
-                    reset_keyboard();
-                }
-            }
+            reset = record->event.pressed;
             return false;
         case RGB_TOG:
             if (record->event.pressed) {
@@ -198,7 +201,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         default:
-            key_timer = timer_read32();
             return true; //Process all other keycodes normally
     }
 }
