@@ -125,6 +125,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Tap dance interval
 #define TAPPING_TERM 200
 
+// Idle timer
+#define IDLE_TIMEOUT 120 // seconds
+#define IDLE_BRIGHTNESS 100 // 0-255
+
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
 #define RGB_MATRIX_LED_FLUSH_LIMIT 10

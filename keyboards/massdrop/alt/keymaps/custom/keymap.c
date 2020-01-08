@@ -8,6 +8,7 @@ enum alt_keycodes {
     DBG_KBD,               //DEBUG Toggle Keyboard Prints
     DBG_MOU,               //DEBUG Toggle Mouse Prints
     MD_BOOT,               //Restart into bootloader after hold timeout
+    RH_DEMO,               // Demo mode toggle
 };
 
 keymap_config_t keymap_config;
@@ -19,9 +20,7 @@ enum {
 
 //Tap Dance Definitions
 qk_tap_dance_action_t tap_dance_actions[] = {
-  //Tap once for Esc, twice for Caps Lock
-  [CTRL]  = ACTION_TAP_DANCE_DOUBLE(KC_LCTL, KC_CAPS)
-// Other declarations would go here, separated by commas, if you have them
+  [CTRL] = ACTION_TAP_DANCE_DOUBLE(KC_LCTL, KC_CAPS),
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -44,7 +43,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, RGB_SPD, RGB_VAI, RGB_SPI, RGB_HUI, RGB_SAI, _______, U_T_AUTO,U_T_AGCR,_______, KC_PSCR, KC_SLCK, KC_PAUS, KC_BSLS, KC_END, \
         TD(CTRL),RGB_RMOD,RGB_VAD, RGB_MOD, RGB_HUD, RGB_SAD, _______, _______, _______, _______, _______, _______,          _______, KC_VOLU, \
         _______, RGB_TOG, _______, _______, _______, MD_BOOT, NK_TOGG, DBG_TOG, DBG_MTRX,DBG_KBD, _______, _______,          KC_PGUP, KC_VOLD, \
-        _______, _______, _______,                            _______,                            _______, _______, KC_HOME, KC_PGDN, KC_END  \
+        RH_DEMO, _______, _______,                            _______,                            _______, RH_DEMO, KC_HOME, KC_PGDN, KC_END  \
+    ),
+    [3] = LAYOUT_65_ansi_blocker( // A demo keymap
+        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   \
+        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   \
+        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,               KC_NO,   KC_NO,   \
+        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,            KC_NO,   KC_NO,   \
+        MO(4),   KC_NO,   KC_NO,                              KC_NO,                              KC_NO,   MO(4),   KC_NO,   KC_NO,   KC_NO    \
+    ),
+    [4] = LAYOUT_65_ansi_blocker( // Return from demo keymap
+        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   \
+        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   \
+        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,               KC_NO,   KC_NO,   \
+        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,            KC_NO,   KC_NO,   \
+        RH_DEMO, KC_NO,   KC_NO,                              KC_NO,                              KC_NO,   RH_DEMO, KC_NO,   KC_NO,   KC_NO    \
     ),
     /*
     [X] = LAYOUT(
@@ -57,12 +70,33 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     */
 };
 
+static uint32_t flash_timer;
+static uint32_t key_timer;
+
+static bool flashing;
+static bool idle;
+
+static uint8_t user_hsv_v;
+
+
 // Runs just one time when the keyboard initializes.
 void matrix_init_user(void) {
 };
 
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
+    if (flashing && timer_elapsed32(flash_timer) > 500) {
+        flashing = false;
+        rgb_matrix_config.hsv.h += 128;
+    }
+
+    static uint32_t idle_timeout = IDLE_TIMEOUT * 1000;
+
+    if (!idle && timer_elapsed32(key_timer) > idle_timeout) { // Detect idleness
+        idle = true;
+        user_hsv_v = rgb_matrix_config.hsv.v;
+        rgb_matrix_config.hsv.v = IDLE_BRIGHTNESS;
+    }
 };
 
 #define MODS_SHIFT  (get_mods() & MOD_BIT(KC_LSHIFT) || get_mods() & MOD_BIT(KC_RSHIFT))
@@ -70,7 +104,10 @@ void matrix_scan_user(void) {
 #define MODS_ALT  (get_mods() & MOD_BIT(KC_LALT) || get_mods() & MOD_BIT(KC_RALT))
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    static uint32_t key_timer;
+    if (idle) { // Detect return from idle
+        idle = false;
+        rgb_matrix_config.hsv.v = user_hsv_v;
+    }
 
     switch (keycode) {
         // case KC_3:
@@ -80,6 +117,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         //         return false;
         //     }
         //     return true;
+        case RH_DEMO:
+            if (!record->event.pressed) {
+                if (timer_elapsed32(key_timer) >= 1000) {
+                    dprintf("Demo mode toggle\n");
+
+                    if (layer_state_is(3)) {
+                        layer_off(3);
+                    } else {
+                        layer_on(3);
+                    }
+
+                    rgb_matrix_config.hsv.h += 128;
+                    flash_timer = timer_read32();
+                    flashing = true;
+                }
+            }
+            return false;
         case U_T_AUTO:
             if (record->event.pressed && MODS_SHIFT && MODS_CTRL) {
                 TOGGLE_FLAG_AND_PRINT(usb_extra_manual, "USB extra port manual mode");
@@ -111,9 +165,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         case MD_BOOT:
-            if (record->event.pressed) {
-                key_timer = timer_read32();
-            } else {
+            if (!record->event.pressed) {
                 if (timer_elapsed32(key_timer) >= 500) {
                     reset_keyboard();
                 }
@@ -146,6 +198,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         default:
+            key_timer = timer_read32();
             return true; //Process all other keycodes normally
     }
 }
