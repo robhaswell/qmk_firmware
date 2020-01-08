@@ -126,7 +126,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAPPING_TERM 200
 
 // Idle timer
-#define IDLE_TIMEOUT 120 // seconds
+#define IDLE_TIMEOUT 60 * 10 // seconds
 #define IDLE_BRIGHTNESS 100 // 0-255
 
 #define RGB_MATRIX_KEYPRESSES
