@@ -77,6 +77,10 @@ static bool idle;
 static bool reset;
 static bool demo_toggle;
 static bool rgb_flash;
+// Special win+3 handling
+static bool lgui_pressed;
+static bool lgui_registered;
+static bool bsls_registered;
 
 static uint8_t user_hsv_v;
 
@@ -132,6 +136,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         rgb_matrix_config.hsv.v = user_hsv_v;
     }
 
+    if (lgui_pressed && record->event.pressed) {
+        // Another key has been pressed with LGUI
+        if (!lgui_registered) {
+            // If LGUI has already been sent we can't really do anything
+            if (keycode == KC_3) {
+                register_code(KC_BSLS);
+                bsls_registered = true;
+                return false; // no further key handling
+            } else {
+                register_code(KC_LGUI);
+                lgui_registered = true;
+            }
+        }
+    }
+
     switch (keycode) {
         // case KC_3:
         //     if (MODS_SHIFT) return true; // Ignore if shift is held.
@@ -142,6 +161,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         //     return true;
         case RH_DEMO:
             demo_toggle = record->event.pressed;
+            return false;
+        case KC_LGUI:
+            // When the windows key is pressed, wait before sending the keycode in case KC_3 is pressed, in which case send KC_BSLS
+            lgui_pressed = record->event.pressed;
+            if (!lgui_pressed) {
+                // Keyup
+                if (lgui_registered) {
+                    unregister_code(KC_LGUI);
+                } else if (!bsls_registered) {
+                    // No other key was pressed so just send LGUI up and down
+                    tap_code(KC_LGUI);
+                }
+                // LGUI is up now so let's reset the state
+                bsls_registered = false;
+                lgui_registered = false;
+            }
             return false;
         case U_T_AUTO:
             if (record->event.pressed && MODS_SHIFT && MODS_CTRL) {
