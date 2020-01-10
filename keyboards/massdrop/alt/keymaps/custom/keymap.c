@@ -77,10 +77,6 @@ static bool idle;
 static bool reset;
 static bool demo_toggle;
 static bool rgb_flash;
-// Special win+3 handling
-static bool lgui_pressed;
-static bool lgui_registered;
-static bool bsls_registered;
 
 static uint8_t user_hsv_v;
 
@@ -130,52 +126,54 @@ void matrix_scan_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     key_timer = timer_read32();
+    static bool lgui_tap;
+    static bool lgui_held;
+    static bool bsls_held;
 
     if (idle) { // Detect return from idle
         idle = false;
         rgb_matrix_config.hsv.v = user_hsv_v;
     }
 
-    if (lgui_pressed && record->event.pressed) {
-        // Another key has been pressed with LGUI
-        if (!lgui_registered) {
-            // If LGUI has already been sent we can't really do anything
-            if (keycode == KC_3) {
-                register_code(KC_BSLS);
-                bsls_registered = true;
-                return false; // no further key handling
-            } else {
-                register_code(KC_LGUI);
-                lgui_registered = true;
-            }
+    if (keycode == KC_LGUI) {
+        lgui_held = record->event.pressed;
+    } else if (lgui_held && keycode != KC_3) {
+        if (record->event.pressed) {
+            register_code(KC_LGUI);
+            register_code(keycode);
+            lgui_tap = false;
+            return false;
+        } else {
+            unregister_code(keycode);
+            unregister_code(KC_LGUI);
+            return false;
         }
     }
 
     switch (keycode) {
-        // case KC_3:
-        //     if (MODS_SHIFT) return true; // Ignore if shift is held.
-        //     if (record->event.pressed && (get_mods() & MOD_BIT(KC_LALT))) {
-        //         SEND_STRING(SS_UP(X_LALT) SS_TAP(X_BSLS) SS_DOWN(X_LALT));
-        //         return false;
-        //     }
-        //     return true;
         case RH_DEMO:
             demo_toggle = record->event.pressed;
             return false;
-        case KC_LGUI:
-            // When the windows key is pressed, wait before sending the keycode in case KC_3 is pressed, in which case send KC_BSLS
-            lgui_pressed = record->event.pressed;
-            if (!lgui_pressed) {
-                // Keyup
-                if (lgui_registered) {
-                    unregister_code(KC_LGUI);
-                } else if (!bsls_registered) {
-                    // No other key was pressed so just send LGUI up and down
-                    tap_code(KC_LGUI);
+        case KC_3:
+            if (lgui_held) {
+                if (record->event.pressed) {
+                    register_code(KC_BSLS);
+                    lgui_tap = false;
+                    bsls_held = true;
+                    return false;
                 }
-                // LGUI is up now so let's reset the state
-                bsls_registered = false;
-                lgui_registered = false;
+            }
+            if (!record->event.pressed && bsls_held) {
+                unregister_code(KC_BSLS);
+                bsls_held = false;
+                return false;
+            }
+            return true;
+        case KC_LGUI:
+            if (record->event.pressed) {
+                lgui_tap = true;
+            } else if (lgui_tap) {
+                tap_code(KC_LGUI);
             }
             return false;
         case U_T_AUTO:
