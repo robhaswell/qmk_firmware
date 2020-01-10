@@ -21,8 +21,8 @@ static uint8_t gradient_hue(uint8_t i) {
 
     if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
         // Shift the underglow colour.
-        hue -= 132;   // Red
-        speed -= 28;  // Use fewer colours
+        hue += RGB_MATRIX_UNDERGLOW_HUE_OFFSET;
+        speed += RGB_MATRIX_UNDERGLOW_SPD_OFFSET;
     }
     uint8_t scale = scale8(64, speed);
 
