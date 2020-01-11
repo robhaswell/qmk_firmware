@@ -11,49 +11,34 @@ RGB_MATRIX_EFFECT(RGB_CUSTOM_SOLID_REACTIVE_SIMPLE)
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
 #ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 
-static RGB rgb_sqrt_blend(RGB a, RGB b, uint8_t t) {
-    RGB rgb;
-    // Blend RGB channels
-    rgb.r = sqrt16(scale16by8(a.r * a.r, (255 - t)) + scale16by8(b.r * b.r, t));
-    rgb.g = sqrt16(scale16by8(a.g * a.g, (255 - t)) + scale16by8(b.g * b.g, t));
-    rgb.b = sqrt16(scale16by8(a.b * a.b, (255 - t)) + scale16by8(b.b * b.b, t));
-    return rgb;
-}
-
-static RGB static_color(uint8_t i, HSV hsv, uint8_t speed) {
-    /* Calculate the static keyboard colour. */
+static uint8_t gradient_hue(uint8_t i) {
+    /* Calculate the custom gradient, and apply an offset gradient to the underglow. */
 
     // The x range will be 0..224, map this to 0..7
     // Relies on hue being 8-bit and wrapping
+    uint8_t hue   = rgb_matrix_config.hsv.h;
+    uint8_t speed = rgb_matrix_config.speed;
+
     if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
         // Shift the underglow colour.
-        hsv.h += RGB_MATRIX_UNDERGLOW_OFFSET_HUE;
+        hue   += RGB_MATRIX_UNDERGLOW_OFFSET_HUE;
         speed += RGB_MATRIX_UNDERGLOW_OFFSET_SPD;
     }
     uint8_t scale = scale8(64, speed);
 
-    #ifdef RGB_MATRIX_BLEND_RGB
-        // Calculate start and end colours
-        RGB rgb_a = hsv_to_rgb(hsv);
-        hsv.h    += scale * 224 >> 5;
-        RGB rgb_b = hsv_to_rgb(hsv);
-        return rgb_sqrt_blend(rgb_a, rgb_b, dx);
-    #else
-        hsv.h += scale * g_led_config.point[i].x >> 5;
-        return hsv_to_rgb(hsv);
-    #endif // #ifdef RGB_MATRIX_BLEND_RGB
+    return hue + (scale * g_led_config.point[i].x >> 5);
 }
 
 static bool RGB_CUSTOM(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
-    HSV hsv       = rgb_matrix_config.hsv;
-    uint8_t speed = rgb_matrix_config.speed;
-
+    HSV hsv = rgb_matrix_config.hsv;
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
 
-        RGB rgb = static_color(i, hsv, speed);
+        hsv.h   = gradient_hue(i);
+        RGB rgb = hsv_to_rgb(hsv);
+
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
     return led_max < DRIVER_LED_TOTAL;
@@ -64,15 +49,14 @@ typedef RGB (*custom_reactive_splash_f)(RGB rgb, int16_t dx, int16_t dy, uint8_t
 static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t* params, custom_reactive_splash_f effect_func) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
-    HSV hsv       = rgb_matrix_config.hsv;
-    uint8_t speed = rgb_matrix_config.speed;
-
     uint8_t count = g_last_hit_tracker.count;
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
+        HSV hsv = rgb_matrix_config.hsv;
 
         // Calculate the base gradient colour.
-        RGB rgb = static_color(i, hsv, speed);
+        hsv.h   = gradient_hue(i);
+        RGB rgb = hsv_to_rgb(hsv);
 
         for (uint8_t j = start; j < count; j++) {
             int16_t  dx   = g_led_config.point[i].x - g_last_hit_tracker.x[j];
@@ -92,9 +76,6 @@ typedef RGB (*custom_reactive_f)(RGB rgb, uint16_t offset);
 static bool custom_effect_runner_reactive(effect_params_t* params, custom_reactive_f effect_func) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
-    HSV hsv       = rgb_matrix_config.hsv;
-    uint8_t speed = rgb_matrix_config.speed;
-
     uint16_t max_tick = 65535 / RGB_MATRIX_REACTIVE_SIMPLE_SPEED;
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
@@ -106,7 +87,11 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
                 break;
             }
         }
-        RGB rgb = static_color(i, hsv, speed);
+        HSV hsv = rgb_matrix_config.hsv;
+
+        // Calculate the base gradient colour
+        hsv.h   = gradient_hue(i);
+        RGB rgb = hsv_to_rgb(hsv);
 
         uint16_t offset = scale16by8(tick, RGB_MATRIX_REACTIVE_SIMPLE_SPEED);
         rgb             = effect_func(rgb, offset);
@@ -115,17 +100,29 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
     return led_max < DRIVER_LED_TOTAL;
 }
 
+static RGB rgb_sqrt_blend(RGB a, RGB b, uint8_t t) {
+    RGB rgb;
+    // Compress the effect so the highlight is more pronounced
+    t     = t * t / 255;
+    // Blend RGB channels
+    rgb.r = sqrt16(scale16by8(a.r * a.r, (255 - t)) + scale16by8(b.r * b.r, t));
+    rgb.g = sqrt16(scale16by8(a.g * a.g, (255 - t)) + scale16by8(b.g * b.g, t));
+    rgb.b = sqrt16(scale16by8(a.b * a.b, (255 - t)) + scale16by8(b.b * b.b, t));
+
+    return rgb;
+}
+
 static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
     uint16_t effect = tick - dist;
     // effect = 0 fully highlighted, 255 fully faded
     if (effect >= 255 || dist > 72) return bg;
     if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) return bg;
 
+    // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
 
     // Blend highlight over the gradient colour
     RGB fg = RGB_MATRIX_REACTIVE_HIGHLIGHT;
-    // Compress the effect so the highlight is more pronounced
-    bg     = rgb_sqrt_blend(fg, bg, effect * effect / 255);
+    bg     = rgb_sqrt_blend(fg, bg, effect);
     return bg;
 }
 
@@ -141,11 +138,11 @@ static RGB CUSTOM_SOLID_REACTIVE_SIMPLE_math(RGB bg, uint16_t effect) {
     // Hold the effect after initial keypress for a short time
     uint8_t shifted = qsub8(effect, RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD);
     effect          = shifted * 255 / (255 - RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD);
+    // if (rand()/RAND_MAX < 0.0001) dprintf("shifted: %u, effect: %u\n", shifted, effect);
 
     // Blend highlight over the gradient colour
     RGB fg = RGB_MATRIX_REACTIVE_HIGHLIGHT;
-    // Compress the effect so the highlight is more pronounced
-    bg = rgb_sqrt_blend(fg, bg, effect * effect / 255);
+    bg = rgb_sqrt_blend(fg, bg, effect);
     return bg;
 }
 
