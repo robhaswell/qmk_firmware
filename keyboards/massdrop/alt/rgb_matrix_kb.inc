@@ -144,7 +144,7 @@ static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint
 }
 
 static bool RGB_CUSTOM_MULTICROSS(effect_params_t* params) {
-    return custom_effect_runner_reactive_splash(qsub8(g_last_hit_tracker.count, 8),  // Use only the previous 8 key samples for performance
+    return custom_effect_runner_reactive_splash(qsub8(g_last_hit_tracker.count, 12),  // Use only the previous 12 key samples for performance
                                                 params, &CUSTOM_SOLID_REACTIVE_CROSS_math);
 }
 
