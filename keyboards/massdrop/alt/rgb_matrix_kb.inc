@@ -132,7 +132,7 @@ static RGB rgb_sqrt_blend(RGB a, RGB b, uint8_t t) {
 static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
     uint16_t effect = tick - dist;
     // effect = 0 fully highlighted, 255 fully faded
-    if (effect >= 255 || dist > 48) return bg; // effect size, default=72
+    if (effect >= 255 || dist > 54) return bg; // effect size, default=72
     if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) return bg; // effect spread, default=8
 
     // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
