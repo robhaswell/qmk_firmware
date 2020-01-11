@@ -127,7 +127,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Idle timer
 #define IDLE_TIMEOUT 60 * 10 // seconds
-#define IDLE_BRIGHTNESS 80 // 0-255
+#define IDLE_BRIGHTNESS 64 // 0-255
 
 #define RGB_MATRIX_KEYPRESSES
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
