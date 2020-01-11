@@ -139,13 +139,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_VAL_STEP 16
 #define RGB_MATRIX_SPD_STEP 4
 
-#define RGB_MATRIX_STARTUP_HUE 124
-#define RGB_MATRIX_STARTUP_SPD 64
+// Main colours
+// #define RGB_MATRIX_STARTUP_HUE 132 // Original
+// #define RGB_MATRIX_STARTUP_SPD 44
+#define RGB_MATRIX_STARTUP_HUE 136 // Tweak for massdrop keycaps
+#define RGB_MATRIX_STARTUP_SPD 48
 
+#define RGB_MATRIX_UNDERGLOW_OFFSET_HUE 0-RGB_MATRIX_STARTUP_HUE
+#define RGB_MATRIX_UNDERGLOW_OFFSET_SPD 14-RGB_MATRIX_STARTUP_SPD
 // #define RGB_MATRIX_BLEND_RGB
-#define RGB_MATRIX_UNDERGLOW_OFFSET_HUE -124
-#define RGB_MATRIX_UNDERGLOW_OFFSET_SPD -48
-#define RGB_MATRIX_REACTIVE_HIGHLIGHT {100, 255, 0} // Warning!! GRB!!
+// #define RGB_MATRIX_BLEND_SQRT
+
+#define RGB_MATRIX_REACTIVE_HIGHLIGHT {100, 255, 0}
 #define RGB_MATRIX_REACTIVE_CROSS_SPEED 60
 #define RGB_MATRIX_REACTIVE_SIMPLE_SPEED 36
 // This effectively delays the fadout of the keys, max value 254

@@ -23,10 +23,26 @@ static uint8_t gradient_hue(uint8_t i) {
         // Shift the underglow colour.
         hue   += RGB_MATRIX_UNDERGLOW_OFFSET_HUE;
         speed += RGB_MATRIX_UNDERGLOW_OFFSET_SPD;
+        #ifdef RGB_MATRIX_BLEND_SQRT
+            uint8_t scale = scale8(64, speed);
+            return hue + (scale * g_led_config.point[i].x >> 5);
+        #endif
     }
     uint8_t scale = scale8(64, speed);
 
-    return hue + (scale * g_led_config.point[i].x >> 5);
+    #ifdef RGB_MATRIX_BLEND_SQRT
+        int16_t offset16 = g_led_config.point[i].x - 112;  // -112 -> 112
+        offset16         = offset16 * 112;
+        if (offset16 < 0) {
+            offset16 = -sqrt16(-offset16);
+        } else {
+            offset16 = sqrt16(offset16);
+        }
+        uint8_t offset = offset16 + 112;
+        return hue + (scale * offset >> 5);
+    #else
+        return hue + (scale * g_led_config.point[i].x >> 5);
+    #endif
 }
 
 static bool RGB_CUSTOM(effect_params_t* params) {
