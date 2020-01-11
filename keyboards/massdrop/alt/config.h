@@ -142,6 +142,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_STARTUP_HUE 132
 #define RGB_MATRIX_STARTUP_SPD 44
 
+// #define RGB_MATRIX_BLEND_RGB
+#define RGB_MATRIX_UNDERGLOW_OFFSET_HUE -132
+#define RGB_MATRIX_UNDERGLOW_OFFSET_SPD -28
 #define RGB_MATRIX_REACTIVE_HIGHLIGHT {100, 255, 0} // Warning!! GRB!!
 #define RGB_MATRIX_REACTIVE_CROSS_SPEED 60
 #define RGB_MATRIX_REACTIVE_SIMPLE_SPEED 36
