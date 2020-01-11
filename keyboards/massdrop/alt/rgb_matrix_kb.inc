@@ -75,6 +75,7 @@ static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t*
         RGB rgb = hsv_to_rgb(hsv);
 
         for (uint8_t j = start; j < count; j++) {
+            if (g_last_hit_tracker.tick[j] > 2000) continue; // Optimise for keys which are long-expired.
             int16_t  dx   = g_led_config.point[i].x - g_last_hit_tracker.x[j];
             int16_t  dy   = g_led_config.point[i].y - g_last_hit_tracker.y[j];
             uint8_t  dist = sqrt16(dx * dx + dy * dy);
