@@ -11,34 +11,32 @@ RGB_MATRIX_EFFECT(RGB_CUSTOM_SOLID_REACTIVE_SIMPLE)
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
 #ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 
-static uint8_t gradient_hue(uint8_t i) {
-    /* Calculate the custom gradient, and apply an offset gradient to the underglow. */
+static RGB static_color(uint8_t i) {
+    /* Calculate the static keyboard colour. */
 
     // The x range will be 0..224, map this to 0..7
     // Relies on hue being 8-bit and wrapping
-    uint8_t hue   = rgb_matrix_config.hsv.h;
+    HSV hsv       = rgb_matrix_config.hsv;
     uint8_t speed = rgb_matrix_config.speed;
 
     if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
         // Shift the underglow colour.
-        hue -= 132;   // Red
+        hsv.h -= 132;   // Red
         speed -= 28;  // Use fewer colours
     }
     uint8_t scale = scale8(64, speed);
 
-    return hue + (scale * g_led_config.point[i].x >> 5);
+    hsv.h += scale * g_led_config.point[i].x >> 5;
+    return hsv_to_rgb(hsv);
 }
 
 static bool RGB_CUSTOM(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
-    HSV hsv = rgb_matrix_config.hsv;
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
 
-        hsv.h   = gradient_hue(i);
-        RGB rgb = hsv_to_rgb(hsv);
-
+        RGB rgb = static_color(i);
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
     return led_max < DRIVER_LED_TOTAL;
@@ -52,11 +50,9 @@ static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t*
     uint8_t count = g_last_hit_tracker.count;
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
-        HSV hsv = rgb_matrix_config.hsv;
 
         // Calculate the base gradient colour.
-        hsv.h   = gradient_hue(i);
-        RGB rgb = hsv_to_rgb(hsv);
+        RGB rgb = static_color(i);
 
         for (uint8_t j = start; j < count; j++) {
             int16_t  dx   = g_led_config.point[i].x - g_last_hit_tracker.x[j];
@@ -87,11 +83,7 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
                 break;
             }
         }
-        HSV hsv = rgb_matrix_config.hsv;
-
-        // Calculate the base gradient colour
-        hsv.h   = gradient_hue(i);
-        RGB rgb = hsv_to_rgb(hsv);
+        RGB rgb = static_color(i);
 
         uint16_t offset = scale16by8(tick, RGB_MATRIX_REACTIVE_SIMPLE_SPEED);
         rgb             = effect_func(rgb, offset);
