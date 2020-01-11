@@ -11,14 +11,11 @@ RGB_MATRIX_EFFECT(RGB_CUSTOM_SOLID_REACTIVE_SIMPLE)
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
 #ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 
-static RGB static_color(uint8_t i) {
+static RGB static_color(uint8_t i, HSV hsv, uint8_t speed) {
     /* Calculate the static keyboard colour. */
 
     // The x range will be 0..224, map this to 0..7
     // Relies on hue being 8-bit and wrapping
-    HSV hsv       = rgb_matrix_config.hsv;
-    uint8_t speed = rgb_matrix_config.speed;
-
     if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
         // Shift the underglow colour.
         hsv.h -= 132;   // Red
@@ -33,10 +30,13 @@ static RGB static_color(uint8_t i) {
 static bool RGB_CUSTOM(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
+    HSV hsv       = rgb_matrix_config.hsv;
+    uint8_t speed = rgb_matrix_config.speed;
+
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
 
-        RGB rgb = static_color(i);
+        RGB rgb = static_color(i, hsv, speed);
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
     return led_max < DRIVER_LED_TOTAL;
@@ -47,12 +47,15 @@ typedef RGB (*custom_reactive_splash_f)(RGB rgb, int16_t dx, int16_t dy, uint8_t
 static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t* params, custom_reactive_splash_f effect_func) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
+    HSV hsv       = rgb_matrix_config.hsv;
+    uint8_t speed = rgb_matrix_config.speed;
+
     uint8_t count = g_last_hit_tracker.count;
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
 
         // Calculate the base gradient colour.
-        RGB rgb = static_color(i);
+        RGB rgb = static_color(i, hsv, speed);
 
         for (uint8_t j = start; j < count; j++) {
             int16_t  dx   = g_led_config.point[i].x - g_last_hit_tracker.x[j];
@@ -72,6 +75,9 @@ typedef RGB (*custom_reactive_f)(RGB rgb, uint16_t offset);
 static bool custom_effect_runner_reactive(effect_params_t* params, custom_reactive_f effect_func) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
+    HSV hsv       = rgb_matrix_config.hsv;
+    uint8_t speed = rgb_matrix_config.speed;
+
     uint16_t max_tick = 65535 / RGB_MATRIX_REACTIVE_SIMPLE_SPEED;
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
@@ -83,7 +89,7 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
                 break;
             }
         }
-        RGB rgb = static_color(i);
+        RGB rgb = static_color(i, hsv, speed);
 
         uint16_t offset = scale16by8(tick, RGB_MATRIX_REACTIVE_SIMPLE_SPEED);
         rgb             = effect_func(rgb, offset);
