@@ -45,20 +45,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, RGB_TOG, _______, _______, _______, MD_BOOT, NK_TOGG, DBG_TOG, DBG_MTRX,DBG_KBD, _______, _______,          KC_PGUP, KC_VOLD, \
         RH_DEMO, _______, _______,                            _______,                            _______, RH_DEMO, KC_HOME, KC_PGDN, KC_END  \
     ),
-    [3] = LAYOUT_65_ansi_blocker( // A demo keymap
-        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   \
-        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   \
-        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,               KC_NO,   KC_NO,   \
-        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,            KC_NO,   KC_NO,   \
-        MO(4),   KC_NO,   KC_NO,                              KC_NO,                              KC_NO,   MO(4),   KC_NO,   KC_NO,   KC_NO    \
-    ),
-    [4] = LAYOUT_65_ansi_blocker( // Return from demo keymap
-        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   \
-        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   \
-        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,               KC_NO,   KC_NO,   \
-        KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,   KC_NO,            KC_NO,   KC_NO,   \
-        RH_DEMO, KC_NO,   KC_NO,                              KC_NO,                              KC_NO,   RH_DEMO, KC_NO,   KC_NO,   KC_NO    \
-    ),
     /*
     [X] = LAYOUT(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
@@ -75,7 +61,8 @@ static uint32_t key_timer;
 
 static bool idle;
 static bool reset;
-static bool demo_toggle;
+static bool demo_held;
+static bool demo_mode;
 static bool rgb_flash;
 
 static uint8_t user_hsv_v;
@@ -91,16 +78,12 @@ void matrix_scan_user(void) {
         reset_keyboard();
     }
 
-    if (demo_toggle && timer_elapsed32(key_timer) > 1000) {
+    if (demo_held && timer_elapsed32(key_timer) > 1000) {
         dprintf("Demo mode toggle\n");
-        demo_toggle = false;
-
-        if (layer_state_is(3)) {
-            layer_off(3);
-        } else {
-            layer_on(3);
-        }
-
+        demo_held = false;
+        // Toggle demo mode
+        demo_mode = !demo_mode;
+        // Flash the keyboard to indicate mode change
         rgb_matrix_config.hsv.h += 128;
         flash_timer = timer_read32();
         rgb_flash = true;
@@ -150,10 +133,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
+    if (keycode == RH_DEMO) {
+        demo_held = record->event.pressed;
+        return false;
+    } else if (demo_mode) {
+        if (keycode == MO(2)) return true;
+        return false;
+    }
+
     switch (keycode) {
-        case RH_DEMO:
-            demo_toggle = record->event.pressed;
-            return false;
         case KC_3:
             if (lgui_held) {
                 if (record->event.pressed) {
