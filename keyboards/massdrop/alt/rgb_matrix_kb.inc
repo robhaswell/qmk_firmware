@@ -6,6 +6,7 @@
 RGB_MATRIX_EFFECT(RGB_CUSTOM)
 RGB_MATRIX_EFFECT(RGB_CUSTOM_MULTICROSS)
 RGB_MATRIX_EFFECT(RGB_CUSTOM_SOLID_REACTIVE_SIMPLE)
+RGB_MATRIX_EFFECT(RGB_CUSTOM_CYCLE)
 
 // Step 2.
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
@@ -53,6 +54,22 @@ static bool RGB_CUSTOM(effect_params_t* params) {
         RGB_MATRIX_TEST_LED_FLAGS();
 
         hsv.h   = gradient_hue(i);
+        RGB rgb = hsv_to_rgb(hsv);
+
+        rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+    }
+    return led_max < DRIVER_LED_TOTAL;
+}
+
+static bool RGB_CUSTOM_CYCLE(effect_params_t* params) {
+    RGB_MATRIX_USE_LIMITS(led_min, led_max);
+
+    HSV hsv = rgb_matrix_config.hsv;
+    for (uint8_t i = led_min; i < led_max; i++) {
+        RGB_MATRIX_TEST_LED_FLAGS();
+
+        hsv.h   = gradient_hue(i);
+        hsv.h  += scale16by8(g_rgb_counters.tick, rgb_matrix_config.speed / 24);
         RGB rgb = hsv_to_rgb(hsv);
 
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
