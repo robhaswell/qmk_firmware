@@ -150,7 +150,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // #define RGB_MATRIX_BLEND_RGB
 // #define RGB_MATRIX_BLEND_SQRT
 
-#define RGB_MATRIX_REACTIVE_HIGHLIGHT {100, 255, 0} // GRB!!!!
+#define RGB_MATRIX_REACTIVE_HIGHLIGHT {80, 255, 0} // GRB!!!!
 #define RGB_MATRIX_REACTIVE_CROSS_SPEED 60
 #define RGB_MATRIX_REACTIVE_SIMPLE_SPEED 36
 // This effectively delays the fadout of the keys, max value 254
