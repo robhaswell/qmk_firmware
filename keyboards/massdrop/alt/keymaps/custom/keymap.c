@@ -59,14 +59,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 static uint32_t flash_timer;
 static uint32_t key_timer;
 
-static bool idle;
 static bool reset;
 static bool demo_held;
 static bool demo_mode;
 static bool rgb_flash;
-
-static uint8_t user_hsv_v;
-
 
 // Runs just one time when the keyboard initializes.
 void matrix_init_user(void) {
@@ -94,13 +90,6 @@ void matrix_scan_user(void) {
         rgb_matrix_config.hsv.h += 128;
     }
 
-    static uint32_t idle_timeout = IDLE_TIMEOUT * 1000;
-
-    if (!idle && timer_elapsed32(key_timer) > idle_timeout) { // Detect idleness
-        idle = true;
-        user_hsv_v = rgb_matrix_config.hsv.v;
-        rgb_matrix_config.hsv.v = IDLE_BRIGHTNESS;
-    }
 };
 
 #define MODS_SHIFT  (get_mods() & MOD_BIT(KC_LSHIFT) || get_mods() & MOD_BIT(KC_RSHIFT))
@@ -112,11 +101,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     static bool lgui_tap;
     static bool lgui_held;
     static bool bsls_held;
-
-    if (idle) { // Detect return from idle
-        idle = false;
-        rgb_matrix_config.hsv.v = user_hsv_v;
-    }
 
     if (keycode == KC_LGUI) {
         lgui_held = record->event.pressed;
