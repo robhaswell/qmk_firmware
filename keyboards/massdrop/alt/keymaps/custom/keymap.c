@@ -8,7 +8,7 @@ enum alt_keycodes {
     DBG_KBD,               //DEBUG Toggle Keyboard Prints
     DBG_MOU,               //DEBUG Toggle Mouse Prints
     MD_BOOT,               //Restart into bootloader after hold timeout
-    RH_DEMO,               // Demo mode toggle
+    RH_DEMO,               //Demo mode
 };
 
 keymap_config_t keymap_config;
@@ -24,29 +24,43 @@ qk_tap_dance_action_t tap_dance_actions[] = {
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
-    [0] = LAYOUT_65_ansi_blocker(
+    [0] = LAYOUT_65_ansi_blocker( // Main keymap
         KC_GESC, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC, KC_DEL, \
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC, KC_NUBS, KC_HOME, \
         KC_LCTL, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,          KC_ENT,  KC_PGUP, \
         LM(1, MOD_LSFT), KC_Z, KC_X, KC_C,   KC_V,   KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,          KC_UP,   KC_PGDN, \
         MO(2),   KC_LGUI, KC_LALT,                            KC_SPC,                             KC_RALT, MO(2),   KC_LEFT, KC_DOWN, KC_RGHT  \
     ),
-    [1] = LAYOUT_65_ansi_blocker(
+    [1] = LAYOUT_65_ansi_blocker( // Flip KC_QUOT and KC_2 to match what is on the keys when shift is held
         _______, _______, KC_QUOT, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_2,             _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, \
         _______, _______, _______,                            _______,                            _______, _______, _______, _______, _______  \
     ),
-    [2] = LAYOUT_65_ansi_blocker(
+    [2] = LAYOUT_65_ansi_blocker( // Main secondary
         KC_GRV,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_DEL,  KC_MPLY, \
         _______, RGB_SPD, RGB_VAI, RGB_SPI, RGB_HUI, RGB_SAI, _______, U_T_AUTO,U_T_AGCR,_______, KC_PSCR, KC_SLCK, KC_PAUS, KC_BSLS, KC_END, \
         TD(CTRL),RGB_RMOD,RGB_VAD, RGB_MOD, RGB_HUD, RGB_SAD, _______, _______, _______, _______, _______, _______,          _______, KC_VOLU, \
         _______, RGB_TOG, _______, _______, _______, MD_BOOT, NK_TOGG, DBG_TOG, DBG_MTRX,DBG_KBD, _______, _______,          KC_PGUP, KC_VOLD, \
         RH_DEMO, _______, _______,                            _______,                            _______, RH_DEMO, KC_HOME, KC_PGDN, KC_END  \
     ),
+    [3] = LAYOUT_65_ansi_blocker( // Mac-layout
+        KC_NUBS, _______, KC_2,    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_BSLS, _______, \
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_QUOT,          _______, _______, \
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, \
+        _______, KC_LALT, LM(4, MOD_LGUI),                    _______,                            _______, _______, _______, _______, _______  \
+    ),
+    [4] = LAYOUT_65_ansi_blocker(
+        KC_NUBS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, \
+        _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, \
+        _______, _______, _______,                            _______,                            _______, _______, _______, _______, _______  \
+    ),
     /*
-    [X] = LAYOUT(
+    [X] = LAYOUT_65_ansi_blocker(
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, \
@@ -98,24 +112,6 @@ void matrix_scan_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     key_timer = timer_read32();
-    static bool lgui_tap;
-    static bool lgui_held;
-    static bool bsls_held;
-
-    if (keycode == KC_LGUI) {
-        lgui_held = record->event.pressed;
-    } else if (lgui_held && keycode != KC_3) {
-        if (record->event.pressed) {
-            register_code(KC_LGUI);
-            register_code(keycode);
-            lgui_tap = false;
-            return false;
-        } else {
-            unregister_code(keycode);
-            unregister_code(KC_LGUI);
-            return false;
-        }
-    }
 
     if (keycode == RH_DEMO) {
         demo_held = record->event.pressed;
@@ -126,28 +122,23 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     switch (keycode) {
-        case KC_3:
-            if (lgui_held) {
-                if (record->event.pressed) {
-                    register_code(KC_BSLS);
-                    lgui_tap = false;
-                    bsls_held = true;
-                    return false;
+        case RGB_VAI:
+            // Drop into mac-mode on fn+ralt+w
+            if (record->event.pressed && get_mods() & MOD_BIT(KC_RALT)) {
+                if (layer_state_is(3)) {
+                    layer_off(3);
+                    // Turn on RGB
+                    rgb_matrix_set_flags(LED_FLAG_ALL);
+                    rgb_matrix_enable_noeeprom();
+                } else {
+                    layer_on(3);
+                    // Turn off RGB
+                    rgb_matrix_set_flags(LED_FLAG_NONE);
+                    rgb_matrix_disable_noeeprom();
                 }
-            }
-            if (!record->event.pressed && bsls_held) {
-                unregister_code(KC_BSLS);
-                bsls_held = false;
                 return false;
             }
             return true;
-        case KC_LGUI:
-            if (record->event.pressed) {
-                lgui_tap = true;
-            } else if (lgui_tap) {
-                tap_code(KC_LGUI);
-            }
-            return false;
         case U_T_AUTO:
             if (record->event.pressed && MODS_SHIFT && MODS_CTRL) {
                 TOGGLE_FLAG_AND_PRINT(usb_extra_manual, "USB extra port manual mode");
