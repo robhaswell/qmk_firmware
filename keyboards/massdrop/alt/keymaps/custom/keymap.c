@@ -107,12 +107,15 @@ void matrix_scan_user(void) {
 };
 
 #define MODS_SHIFT  (get_mods() & MOD_BIT(KC_LSHIFT) || get_mods() & MOD_BIT(KC_RSHIFT))
-#define MODS_CTRL  (get_mods() & MOD_BIT(KC_LCTL) || get_mods() & MOD_BIT(KC_RCTRL))
-#define MODS_ALT  (get_mods() & MOD_BIT(KC_LALT) || get_mods() & MOD_BIT(KC_RALT))
+#define MODS_CTRL   (get_mods() & MOD_BIT(KC_LCTL) || get_mods() & MOD_BIT(KC_RCTRL))
+#define MODS_ALT    (get_mods() & MOD_BIT(KC_LALT) || get_mods() & MOD_BIT(KC_RALT))
+
+#define MOD_LGUI    (get_mods() & MOD_BIT(KC_LGUI))
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     key_timer = timer_read32();
 
+    // Handle demo-mode
     if (keycode == RH_DEMO) {
         demo_held = record->event.pressed;
         return false;
@@ -121,6 +124,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
+    /* Handle logic to facilitate win+3 = # (KC_BSLS)
+
+    If:
+    * Win is pressed down = NOOP
+    * Win+3 is pressed = LGUI up if down, KC_BSLS tapped
+    * Win+ANY is pressed = LGUI down, ANY reg/unreg
+    * Win released = LGUI up if down, else LGUI up
+    */
+    static bool lgui_down;
+    if (keycode == KC_LGUI) {
+        lgui_down = event.record->pressed;
+        if (!MOD_LGUI) {
+            tap_code(KC_LGUI);
+        }
+        return false; // XXX: do not return if we need to send LGUI
+    }
+    if (lgui_down) {
+
+    }
+    
     switch (keycode) {
         case RGB_VAI:
             // Drop into mac-mode on fn+ralt+w
