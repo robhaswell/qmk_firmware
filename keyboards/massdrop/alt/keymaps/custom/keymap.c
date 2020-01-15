@@ -82,6 +82,12 @@ static bool rgb_flash;
 void matrix_init_user(void) {
 };
 
+void keyboard_post_init_user(void) {
+    #ifdef CONSOLE_ENABLE
+        debug_enable = true; // If debugging is compiled in then enable it to begin with
+    #endif
+}
+
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
     if (reset && timer_elapsed32(key_timer) > 500) {
@@ -110,6 +116,7 @@ void matrix_scan_user(void) {
 #define MODS_CTRL   (get_mods() & MOD_BIT(KC_LCTL) || get_mods() & MOD_BIT(KC_RCTRL))
 #define MODS_ALT    (get_mods() & MOD_BIT(KC_LALT) || get_mods() & MOD_BIT(KC_RALT))
 
+#define MAC_MODE    (layer_state_is(3))
 #define MOD_LGUI    (get_mods() & MOD_BIT(KC_LGUI))
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -130,25 +137,51 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     * Win is pressed down = NOOP
     * Win+3 is pressed = LGUI up if down, KC_BSLS tapped
     * Win+ANY is pressed = LGUI down, ANY reg/unreg
-    * Win released = LGUI up if down, else LGUI up
+    * Win released = LGUI up if down, else tap LGUI if KC_BSLS not sent
     */
     static bool lgui_down;
-    if (keycode == KC_LGUI) {
-        lgui_down = event.record->pressed;
-        if (!MOD_LGUI) {
-            tap_code(KC_LGUI);
+    static bool lgui_mute;
+    static bool bsls_mode;
+    if (!MAC_MODE) { // We don't need any of this chutney in mac mode
+        if (keycode == KC_LGUI) {
+            lgui_down = record->event.pressed;
+            if (!lgui_down) { // Keyup
+                if (!MOD_LGUI) { // Keyup & LGUI never sent
+                    if (!lgui_mute) tap_code(KC_LGUI); // Tap if KC_BSLS not sent
+                } else              unregister_code(KC_LGUI); // Unsend LGUI
+                lgui_mute = false;
+            }
+            return false;
         }
-        return false; // XXX: do not return if we need to send LGUI
-    }
-    if (lgui_down) {
-
+        if (lgui_down) {
+            // LGUI is held down so there is some action to take
+            if (keycode == KC_3) {
+                // Our special key 3 has been pressed
+                lgui_mute = true; // Suppress LGUI being tapped when it comes back up again
+                bsls_mode = true; // Flag the keycode for special handling
+                if (MOD_LGUI) unregister_code(KC_LGUI); // LGUI has been sent so unsend it
+            } else {
+                // Some other key pressed so begin a chord
+                register_code(KC_LGUI);
+            }
+        }
+        if (keycode == KC_3 && bsls_mode) {
+            // Send/unsend KS_BSLS to get #
+            if (record->event.pressed)
+                register_code(KC_BSLS);
+            else {
+                unregister_code(KC_BSLS);
+                bsls_mode = false;
+            }
+            return false;
+        }
     }
     
     switch (keycode) {
         case RGB_VAI:
             // Drop into mac-mode on fn+ralt+w
             if (record->event.pressed && get_mods() & MOD_BIT(KC_RALT)) {
-                if (layer_state_is(3)) {
+                if (MAC_MODE) {
                     layer_off(3);
                     // Turn on RGB
                     rgb_matrix_set_flags(LED_FLAG_ALL);
