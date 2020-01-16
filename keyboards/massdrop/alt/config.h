@@ -124,4 +124,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_LED_PROCESS_LIMIT 15
 #define RGB_MATRIX_LED_FLUSH_LIMIT 10
 
+// Load our custom RGB by default
+#define RGB_MATRIX_STARTUP_MODE RGB_MATRIX_CUSTOM_RGB_CUSTOM
+
+#define RGB_MATRIX_STARTUP_HUE 136 // blue-magenta
+#define RGB_MATRIX_STARTUP_SPD 48
+
+#define RGB_MATRIX_UNDERGLOW_OFFSET_HUE 0-RGB_MATRIX_STARTUP_HUE // red-orange
+#define RGB_MATRIX_UNDERGLOW_OFFSET_SPD 14-RGB_MATRIX_STARTUP_SPD
+
+#define RGB_MATRIX_REACTIVE_HIGHLIGHT {80, 255, 0} // GRB!!!!
+#define RGB_MATRIX_REACTIVE_CROSS_SPEED 60
+#define RGB_MATRIX_REACTIVE_SIMPLE_SPEED 36
+// This effectively delays the fadout of the keys, max value 254
+#define RGB_MATRIX_REACTIVE_SIMPLE_THRESHOLD 100
+
 #include "config_led.h"
