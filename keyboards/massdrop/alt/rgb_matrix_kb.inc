@@ -6,6 +6,8 @@
 RGB_MATRIX_EFFECT(CUSTOM_EFFECT)
 RGB_MATRIX_EFFECT(CUSTOM_EFFECT_NEXUS)
 
+#define NEXUS_SPEED 60
+
 // Step 2.
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
 #ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
@@ -30,6 +32,18 @@ HSV calc_rgb_gradient(uint8_t i) {
     return hsv;
 }
 
+// https://gist.github.com/kasperkamperman/b0d0d8058246d674dd01#file-test_sqrt_blending-ino-L60
+RGB sqrt_blend(RGB a, RGB b, uint8_t t) {
+ 
+  RGB rgb;
+
+  rgb.r = sqrt16(scale16by8( a.r * a.r, (255 - t) ) + scale16by8( b.r * b.r, t ));
+  rgb.g = sqrt16(scale16by8( a.g * a.g, (255 - t) ) + scale16by8( b.g * b.g, t ));
+  rgb.b = sqrt16(scale16by8( a.b * a.b, (255 - t) ) + scale16by8( b.b * b.b, t ));
+
+  return rgb;
+}
+
 // e.g: A simple effect, self-contained within a single method
 static bool CUSTOM_EFFECT(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
@@ -45,9 +59,9 @@ static bool CUSTOM_EFFECT(effect_params_t* params) {
 
 static RGB CUSTOM_EFFECT_NEXUS_math(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
     uint16_t effect = tick - dist;
-    if (effect > 255) effect = 255;
-    if (dist > 72) effect = 255;
-    if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) effect = 255;
+    if (effect >= 255) return rgb;
+    if (dist > 72) return rgb;
+    if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) return rgb;
 
     // Define our highlight colour
     RGB hl;
@@ -56,9 +70,8 @@ static RGB CUSTOM_EFFECT_NEXUS_math(RGB rgb, int16_t dx, int16_t dy, uint8_t dis
     hl.b = 0;
 
     // effect = 0 at full effect -> 255 fully faded
-    rgb.r = blend8(hl.r, rgb.r, effect); // rgb.r = hl.r + (rgb.r - hl.r) / 255;
-    rgb.g = blend8(hl.g, rgb.g, effect);
-    rgb.b = blend8(hl.b, rgb.b, effect);
+    effect = effect * effect / 255; // apply a square transformation
+    rgb = sqrt_blend(hl, rgb, effect);
     return rgb;
 }
 
@@ -76,7 +89,7 @@ bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t* params
             int16_t  dx   = g_led_config.point[i].x - g_last_hit_tracker.x[j];
             int16_t  dy   = g_led_config.point[i].y - g_last_hit_tracker.y[j];
             uint8_t  dist = sqrt16(dx * dx + dy * dy);
-            uint16_t tick = scale16by8(g_last_hit_tracker.tick[j], rgb_matrix_config.speed);
+            uint16_t tick = scale16by8(g_last_hit_tracker.tick[j], NEXUS_SPEED);
             rgb           = effect_func(rgb, dx, dy, dist, tick);
         }
         // Calculate the brightness
