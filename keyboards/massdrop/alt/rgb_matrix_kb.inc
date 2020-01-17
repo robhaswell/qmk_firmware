@@ -48,8 +48,16 @@ static RGB CUSTOM_EFFECT_NEXUS_math(RGB rgb, int16_t dx, int16_t dy, uint8_t dis
     if (dist > 72) effect = 255;
     if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) effect = 255;
 
+    // Define our highlight colour
+    RGB hl;
+    hl.r = 255;
+    hl.g = 100;
+    hl.b = 0;
+
     // effect = 0 at full effect -> 255 fully faded
-    // TODO: Use this effect value to blend a highlight colour and the background
+    rgb.r = blend8(hl.r, rgb.r, effect); // rgb.r = hl.r + (rgb.r - hl.r) / 255;
+    rgb.g = blend8(hl.g, rgb.g, effect);
+    rgb.b = blend8(hl.b, rgb.b, effect);
     return rgb;
 }
 
