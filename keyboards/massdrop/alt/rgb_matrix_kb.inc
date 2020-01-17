@@ -26,6 +26,7 @@ HSV calc_rgb_gradient(uint8_t i) {
     uint8_t scale = scale8(64, speed);
 
     hsv.h   = hue + (scale * g_led_config.point[i].x >> 5);
+    hsv.v   = 255; // Overall brightness will be calculated later
     return hsv;
 }
 
@@ -78,7 +79,11 @@ bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t* params
             uint16_t tick = scale16by8(g_last_hit_tracker.tick[j], rgb_matrix_config.speed);
             rgb           = effect_func(rgb, dx, dy, dist, tick);
         }
-        // TODO: Scale brightness
+        // Calculate the brightness
+        rgb.r = scale8(rgb.r, rgb_matrix_config.hsv.v); // rgb.r = rgb.r * rgb_matrix_config.hsv.v / 255;
+        rgb.g = scale8(rgb.g, rgb_matrix_config.hsv.v);
+        rgb.b = scale8(rgb.b, rgb_matrix_config.hsv.v);
+        
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
     return led_max < DRIVER_LED_TOTAL;
