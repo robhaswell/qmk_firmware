@@ -125,6 +125,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_LED_FLUSH_LIMIT 10
 
 // Load our custom RGB by default
-#define RGB_MATRIX_STARTUP_MODE RGB_MATRIX_CUSTOM_my_cool_effect
+#define RGB_MATRIX_STARTUP_MODE RGB_MATRIX_CUSTOM_CUSTOM_EFFECT
 
 #include "config_led.h"
