@@ -50,8 +50,6 @@ static HSV CUSTOM_EFFECT_NEXUS_math(HSV hsv, int16_t dx, int16_t dy, uint8_t dis
 
     // effect = 0 at full effect -> 255 fully faded
     hsv.v = qadd8(hsv.v, 255 - effect);
-    hsv.h = rgb_matrix_config.hsv.h + dy / 4; // Change hue based on the y distance - no discernable effect
-
     // TODO: Use this effect value to blend a highlight colour and the background
     return hsv;
 }
@@ -65,7 +63,7 @@ bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t* params
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
         // TODO: Starting value for the LED goes here
-        HSV hsv = rgb_matrix_config.hsv;
+        HSV hsv = calc_rgb_gradient(i);
         hsv.v   = 0;
         for (uint8_t j = start; j < count; j++) {
             int16_t  dx   = g_led_config.point[i].x - g_last_hit_tracker.x[j];
