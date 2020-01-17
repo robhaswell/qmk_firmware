@@ -4,6 +4,7 @@
 // Declare custom effects using the RGB_MATRIX_EFFECT macro
 // (note the lack of semicolon after the macro!)
 RGB_MATRIX_EFFECT(CUSTOM_EFFECT)
+RGB_MATRIX_EFFECT(CUSTOM_EFFECT_NEXUS)
 
 // Step 2.
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
@@ -36,7 +37,7 @@ static bool CUSTOM_EFFECT(effect_params_t* params) {
     return led_max < DRIVER_LED_TOTAL;
 }
 
-static HSV SOLID_REACTIVE_NEXUS_math(HSV hsv, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
+static HSV CUSTOM_EFFECT_NEXUS_math(HSV hsv, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
     uint16_t effect = tick - dist;
     if (effect > 255) effect = 255;
     if (dist > 72) effect = 255;
@@ -46,9 +47,9 @@ static HSV SOLID_REACTIVE_NEXUS_math(HSV hsv, int16_t dx, int16_t dy, uint8_t di
     return hsv;
 }
 
-typedef HSV (*reactive_splash_f)(HSV hsv, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick);
+typedef HSV (*custom_reactive_splash_f)(HSV hsv, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick);
 
-bool effect_runner_reactive_splash(uint8_t start, effect_params_t* params, reactive_splash_f effect_func) {
+bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t* params, custom_reactive_splash_f effect_func) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
     uint8_t count = g_last_hit_tracker.count;
@@ -70,7 +71,7 @@ bool effect_runner_reactive_splash(uint8_t start, effect_params_t* params, react
     return led_max < DRIVER_LED_TOTAL;
 }
 
-bool SOLID_REACTIVE_MULTINEXUS(effect_params_t* params) { return effect_runner_reactive_splash(0, params, &SOLID_REACTIVE_NEXUS_math); }
+bool CUSTOM_EFFECT_NEXUS(effect_params_t* params) { return custom_effect_runner_reactive_splash(0, params, &CUSTOM_EFFECT_NEXUS_math); }
 
 
 #endif // RGB_MATRIX_CUSTOM_EFFECT_IMPLS
