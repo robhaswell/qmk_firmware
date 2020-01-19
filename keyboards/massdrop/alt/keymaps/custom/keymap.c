@@ -195,6 +195,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             return true;
+        case KC_BSLS:
+            if (MODS_SHIFT && MODS_CTRL) { // Support ctrl+shift+esc
+                if (record->event.pressed) tap_code(KC_ESC);
+                return false;
+            }
+            return true;
         case U_T_AUTO:
             if (record->event.pressed && MODS_SHIFT && MODS_CTRL) {
                 TOGGLE_FLAG_AND_PRINT(usb_extra_manual, "USB extra port manual mode");
