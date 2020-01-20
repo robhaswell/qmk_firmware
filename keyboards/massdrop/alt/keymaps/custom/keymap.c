@@ -50,7 +50,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_BSLS, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_QUOT,          _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, \
-        _______, KC_LALT, LM(4, MOD_LGUI),                    _______,                    LM(4, MOD_LGUI), _______, _______, _______, _______  \
+        _______, KC_LALT, LM(4, MOD_LGUI),                    _______,                            KC_RGUI, _______, _______, _______, _______  \
     ),
     [4] = LAYOUT_65_ansi_blocker(
         KC_NUBS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
@@ -180,7 +180,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case RGB_VAI:
             // Drop into mac-mode on fn+ralt+w
-            if (record->event.pressed && get_mods() & MOD_BIT(KC_RALT)) {
+            if (record->event.pressed && (MODS_ALT || get_mods() & MOD_BIT(KC_RGUI))) {
                 if (MAC_MODE) {
                     layer_off(3);
                     // Turn on RGB
