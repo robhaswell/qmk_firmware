@@ -77,6 +77,32 @@ static bool RGB_CUSTOM_CYCLE(effect_params_t* params) {
     return led_max < DRIVER_LED_TOTAL;
 }
 
+static RGB rgb_sqrt_blend(RGB a, RGB b, uint8_t t) {
+    RGB rgb;
+    // Compress the effect so the highlight is more pronounced
+    t     = t * t / 255;
+    // Blend RGB channels
+    rgb.r = sqrt16(scale16by8(a.r * a.r, (255 - t)) + scale16by8(b.r * b.r, t));
+    rgb.g = sqrt16(scale16by8(a.g * a.g, (255 - t)) + scale16by8(b.g * b.g, t));
+    rgb.b = sqrt16(scale16by8(a.b * a.b, (255 - t)) + scale16by8(b.b * b.b, t));
+
+    return rgb;
+}
+
+static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
+    uint16_t effect = tick - dist;
+    // effect = 0 fully highlighted, 255 fully faded
+    if (effect >= 255 || dist > 54) return bg; // effect size, default=72
+    if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) return bg; // effect spread, default=8
+
+    // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
+
+    // Blend highlight over the gradient colour
+    RGB fg = RGB_MATRIX_REACTIVE_HIGHLIGHT;
+    bg     = rgb_sqrt_blend(fg, bg, effect);
+    return bg;
+}
+
 typedef RGB (*custom_reactive_splash_f)(RGB rgb, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick);
 
 static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t* params, custom_reactive_splash_f effect_func) {
@@ -103,6 +129,11 @@ static bool custom_effect_runner_reactive_splash(uint8_t start, effect_params_t*
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
     return led_max < DRIVER_LED_TOTAL;
+}
+
+static bool RGB_CUSTOM_MULTICROSS(effect_params_t* params) {
+    return custom_effect_runner_reactive_splash(qsub8(g_last_hit_tracker.count, 12),  // Use only the previous 12 key samples for performance
+                                                params, &CUSTOM_SOLID_REACTIVE_CROSS_math);
 }
 
 typedef RGB (*custom_reactive_f)(RGB rgb, uint16_t offset);
@@ -132,37 +163,6 @@ static bool custom_effect_runner_reactive(effect_params_t* params, custom_reacti
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
     return led_max < DRIVER_LED_TOTAL;
-}
-
-static RGB rgb_sqrt_blend(RGB a, RGB b, uint8_t t) {
-    RGB rgb;
-    // Compress the effect so the highlight is more pronounced
-    t     = t * t / 255;
-    // Blend RGB channels
-    rgb.r = sqrt16(scale16by8(a.r * a.r, (255 - t)) + scale16by8(b.r * b.r, t));
-    rgb.g = sqrt16(scale16by8(a.g * a.g, (255 - t)) + scale16by8(b.g * b.g, t));
-    rgb.b = sqrt16(scale16by8(a.b * a.b, (255 - t)) + scale16by8(b.b * b.b, t));
-
-    return rgb;
-}
-
-static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint8_t dist, uint16_t tick) {
-    uint16_t effect = tick - dist;
-    // effect = 0 fully highlighted, 255 fully faded
-    if (effect >= 255 || dist > 54) return bg; // effect size, default=72
-    if ((dx > 8 || dx < -8) && (dy > 8 || dy < -8)) return bg; // effect spread, default=8
-
-    // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
-
-    // Blend highlight over the gradient colour
-    RGB fg = RGB_MATRIX_REACTIVE_HIGHLIGHT;
-    bg     = rgb_sqrt_blend(fg, bg, effect);
-    return bg;
-}
-
-static bool RGB_CUSTOM_MULTICROSS(effect_params_t* params) {
-    return custom_effect_runner_reactive_splash(qsub8(g_last_hit_tracker.count, 12),  // Use only the previous 12 key samples for performance
-                                                params, &CUSTOM_SOLID_REACTIVE_CROSS_math);
 }
 
 static RGB CUSTOM_SOLID_REACTIVE_SIMPLE_math(RGB bg, uint16_t effect) {
