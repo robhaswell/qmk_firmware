@@ -142,15 +142,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Main colours
 // #define RGB_MATRIX_STARTUP_HUE 132 // Original
 // #define RGB_MATRIX_STARTUP_SPD 44
-#define RGB_MATRIX_STARTUP_HUE 136 // Tweak for massdrop keycaps
-#define RGB_MATRIX_STARTUP_SPD 48
+// #define RGB_MATRIX_STARTUP_HUE 136 // Tweak for massdrop keycaps
+// #define RGB_MATRIX_STARTUP_SPD 48
+#define RGB_MATRIX_STARTUP_HUE 68 // Purple -> green
+#define RGB_MATRIX_STARTUP_SPD 36
 
-#define RGB_MATRIX_UNDERGLOW_OFFSET_HUE 0-RGB_MATRIX_STARTUP_HUE
+// #define RGB_MATRIX_UNDERGLOW_OFFSET_HUE 0-RGB_MATRIX_STARTUP_HUE // Red -> orange
+#define RGB_MATRIX_UNDERGLOW_OFFSET_HUE 108
 #define RGB_MATRIX_UNDERGLOW_OFFSET_SPD 14-RGB_MATRIX_STARTUP_SPD
 // #define RGB_MATRIX_BLEND_RGB
 // #define RGB_MATRIX_BLEND_SQRT
 
-#define RGB_MATRIX_REACTIVE_HIGHLIGHT {80, 255, 0} // GRB!!!!
+// #define RGB_MATRIX_REACTIVE_HIGHLIGHT {0, 255, 0} // GRB!!!! // Orange
+#define RGB_MATRIX_REACTIVE_HIGHLIGHT {0, 122, 255} // GRB!!!!
 #define RGB_MATRIX_REACTIVE_CROSS_SPEED 60
 #define RGB_MATRIX_REACTIVE_SIMPLE_SPEED 36
 // This effectively delays the fadout of the keys, max value 254
@@ -165,6 +169,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define USB_POLLING_INTERVAL_MS 1
 
-#define DEBUG_MATRIX_SCAN_RATE
+// #define DEBUG_MATRIX_SCAN_RATE
 
 #include "config_led.h"
