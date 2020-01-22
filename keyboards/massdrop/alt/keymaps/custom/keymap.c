@@ -128,6 +128,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     } else if (demo_mode) {
         if (keycode == MO(2)) return true; // Allow demo mode to be turned off
+        if (keycode == LM(1, MOD_LSFT)) return true; // Allow shift
         if (keycode != RGB_HUI && // Allow RGB controls in demo mode
             keycode != RGB_HUD &&
             keycode != RGB_SAI &&
