@@ -34,3 +34,5 @@
     }
 
 #define LAYOUT LAYOUT_65_ansi_blocker // Ensure that user made existing keymaps do not break. 
+
+extern rgb_config_t rgb_matrix_alt_config;

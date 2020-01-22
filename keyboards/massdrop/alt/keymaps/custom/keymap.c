@@ -82,11 +82,11 @@ static bool rgb_flash;
 void matrix_init_user(void) {
 };
 
-void keyboard_post_init_user(void) {
-    #ifdef CONSOLE_ENABLE
-        debug_enable = true; // If debugging is compiled in then enable it to begin with
-    #endif
-}
+// void keyboard_post_init_user(void) {
+//     #ifdef CONSOLE_ENABLE
+//         debug_enable = true; // If debugging is compiled in then enable it to begin with
+//     #endif
+// }
 
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
@@ -127,8 +127,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         demo_held = record->event.pressed;
         return false;
     } else if (demo_mode) {
-        if (keycode == MO(2)) return true;
-        return false;
+        if (keycode == MO(2)) return true; // Allow demo mode to be turned off
+        if (keycode != RGB_HUI && // Allow RGB controls in demo mode
+            keycode != RGB_HUD &&
+            keycode != RGB_SAI &&
+            keycode != RGB_SAD &&
+            keycode != RGB_VAI &&
+            keycode != RGB_VAD &&
+            keycode != RGB_SPI &&
+            keycode != RGB_SPD) return false;
     }
 
     /* Handle logic to facilitate win+3 = # (KC_BSLS)
@@ -192,6 +199,55 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     rgb_matrix_set_flags(LED_FLAG_NONE);
                     rgb_matrix_disable_noeeprom();
                 }
+                return false;
+            }
+
+            // Alt colours stuff
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.v += RGB_MATRIX_VAL_STEP;
+                return false;
+            }
+            return true;
+        case RGB_HUI:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.h += RGB_MATRIX_HUE_STEP;
+                return false;
+            }
+            return true;
+        case RGB_HUD:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.h -= RGB_MATRIX_HUE_STEP;
+                return false;
+            }
+            return true;
+        case RGB_SAI:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.s += RGB_MATRIX_SAT_STEP;
+                return false;
+            }
+            return true;
+        case RGB_SAD:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.s -= RGB_MATRIX_SAT_STEP;
+                return false;
+            }
+            return true;
+        // case RGB_VAI: // See above
+        case RGB_VAD:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.v -= RGB_MATRIX_VAL_STEP;
+                return false;
+            }
+            return true;
+        case RGB_SPI:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.speed += RGB_MATRIX_SPD_STEP;
+                return false;
+            }
+            return true;
+        case RGB_SPD:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.speed -= RGB_MATRIX_SPD_STEP;
                 return false;
             }
             return true;
