@@ -162,7 +162,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGB_MATRIX_STARTUP_SPD 36
 #define RGB_MATRIX_STARTUP_ALT_HUE 176-RGB_MATRIX_STARTUP_HUE // Purple
 #define RGB_MATRIX_STARTUP_ALT_SPD 14-RGB_MATRIX_STARTUP_SPD
-#define RGB_MATRIX_STARTUP_ALT_SAT 180 // RGB_MATRIX_REACTIVE_HIGHLIGHT, purple
+#define RGB_MATRIX_STARTUP_ALT_SAT 184 // RGB_MATRIX_REACTIVE_HIGHLIGHT, purple
 
 /*** RGB behaviour options ***/
 // #define RGB_MATRIX_BLEND_RGB
