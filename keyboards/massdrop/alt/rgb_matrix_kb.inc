@@ -12,6 +12,8 @@ RGB_MATRIX_EFFECT(RGB_CUSTOM_CYCLE)
 // Define effects inside the `RGB_MATRIX_CUSTOM_EFFECT_IMPLS` ifdef block
 #ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 
+extern rgb_config_t rgb_matrix_alt_config;
+
 static uint8_t gradient_hue(uint8_t i) {
     /* Calculate the custom gradient, and apply an offset gradient to the underglow. */
 
@@ -22,8 +24,8 @@ static uint8_t gradient_hue(uint8_t i) {
 
     if (HAS_FLAGS(g_led_config.flags[i], LED_FLAG_UNDERGLOW)) {
         // Shift the underglow colour.
-        hue   += RGB_MATRIX_UNDERGLOW_OFFSET_HUE;
-        speed += RGB_MATRIX_UNDERGLOW_OFFSET_SPD;
+        hue   += rgb_matrix_alt_config.hsv.h;
+        speed += RGB_MATRIX_STARTUP_ALT_SPD;
         #ifdef RGB_MATRIX_BLEND_SQRT
             uint8_t scale = scale8(64, speed);
             return hue + (scale * g_led_config.point[i].x >> 5);
@@ -98,8 +100,14 @@ static RGB CUSTOM_SOLID_REACTIVE_CROSS_math(RGB bg, int16_t dx, int16_t dy, uint
     // if (rand()/RAND_MAX < 0.0001) dprintf("effect: %u\n", effect);
 
     // Blend highlight over the gradient colour
-    RGB fg = RGB_MATRIX_REACTIVE_HIGHLIGHT;
-    bg     = rgb_sqrt_blend(fg, bg, effect);
+    static int fg_hue;
+    static RGB fg = {0x00, 0xFF, 0x00};
+    if (rgb_matrix_alt_config.hsv.s != fg_hue) {
+        fg_hue     = rgb_matrix_alt_config.hsv.s;
+        HSV fg_hsv = {fg_hue, 0xFF, 0xFF};
+        fg         = hsv_to_rgb(fg_hsv);
+    }
+    bg = rgb_sqrt_blend(fg, bg, effect);
     return bg;
 }
 
@@ -175,7 +183,13 @@ static RGB CUSTOM_SOLID_REACTIVE_SIMPLE_math(RGB bg, uint16_t effect) {
     // if (rand()/RAND_MAX < 0.0001) dprintf("shifted: %u, effect: %u\n", shifted, effect);
 
     // Blend highlight over the gradient colour
-    RGB fg = RGB_MATRIX_REACTIVE_HIGHLIGHT;
+    static int fg_hue;
+    static RGB fg = {0x00, 0xFF, 0x00};
+    if (rgb_matrix_alt_config.hsv.s != fg_hue) {
+        fg_hue     = rgb_matrix_alt_config.hsv.s;
+        HSV fg_hsv = {fg_hue, 0xFF, 0xFF};
+        fg         = hsv_to_rgb(fg_hsv);
+    }
     bg = rgb_sqrt_blend(fg, bg, effect);
     return bg;
 }

@@ -194,6 +194,55 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 }
                 return false;
             }
+
+            // Alt colours stuff
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.v += RGB_MATRIX_VAL_STEP;
+                return false;
+            }
+            return true;
+        case RGB_HUI:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.h += RGB_MATRIX_HUE_STEP;
+                return false;
+            }
+            return true;
+        case RGB_HUD:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.h -= RGB_MATRIX_HUE_STEP;
+                return false;
+            }
+            return true;
+        case RGB_SAI:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.s += RGB_MATRIX_SAT_STEP;
+                return false;
+            }
+            return true;
+        case RGB_SAD:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.s -= RGB_MATRIX_SAT_STEP;
+                return false;
+            }
+            return true;
+        // case RGB_VAI: // See above
+        case RGB_VAD:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.hsv.v -= RGB_MATRIX_VAL_STEP;
+                return false;
+            }
+            return true;
+        case RGB_SPI:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.speed += RGB_MATRIX_SPD_STEP;
+                return false;
+            }
+            return true;
+        case RGB_SPD:
+            if (record->event.pressed && MODS_SHIFT) {
+                rgb_matrix_alt_config.speed -= RGB_MATRIX_SPD_STEP;
+                return false;
+            }
             return true;
         case KC_BSLS:
             if (MODS_SHIFT && MODS_CTRL) { // Support ctrl+shift+esc

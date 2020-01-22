@@ -153,16 +153,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*** Miami sunset ***/
 // #define RGB_MATRIX_STARTUP_HUE 136 // Tweak for massdrop keycaps
 // #define RGB_MATRIX_STARTUP_SPD 48
-// #define RGB_MATRIX_UNDERGLOW_OFFSET_HUE 0-RGB_MATRIX_STARTUP_HUE // Red -> orange
-// #define RGB_MATRIX_UNDERGLOW_OFFSET_SPD 14-RGB_MATRIX_STARTUP_SPD
-// #define RGB_MATRIX_REACTIVE_HIGHLIGHT {0, 255, 0} // GRB!!!! // Orange
+// #define RGB_MATRIX_STARTUP_ALT_HUE 0-RGB_MATRIX_STARTUP_HUE // Red -> orange
+// #define RGB_MATRIX_STARTUP_ALT_SPD 14-RGB_MATRIX_STARTUP_SPD
+// #define RGB_MATRIX_REACTIVE_HIGHLIGHT {80, 255, 0} // GRB!!!! // Orange
 
 /*** Toxic nature ***/
 #define RGB_MATRIX_STARTUP_HUE 68 // Green -> blue
 #define RGB_MATRIX_STARTUP_SPD 36
-#define RGB_MATRIX_UNDERGLOW_OFFSET_HUE 108 // Purple
-#define RGB_MATRIX_UNDERGLOW_OFFSET_SPD 14-RGB_MATRIX_STARTUP_SPD
-#define RGB_MATRIX_REACTIVE_HIGHLIGHT {0, 122, 255} // GRB!!!! // Purple
+#define RGB_MATRIX_STARTUP_ALT_HUE 176-RGB_MATRIX_STARTUP_HUE // Purple
+#define RGB_MATRIX_STARTUP_ALT_SAT 180 // Purple
+#define RGB_MATRIX_STARTUP_ALT_SPD 14-RGB_MATRIX_STARTUP_SPD
 
 /*** RGB behaviour options ***/
 // #define RGB_MATRIX_BLEND_RGB
@@ -174,6 +174,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-// #define DEBUG_MATRIX_SCAN_RATE
+#define DEBUG_MATRIX_SCAN_RATE
 
 #include "config_led.h"
