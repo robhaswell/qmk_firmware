@@ -151,18 +151,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /*** Colour scheme definitions ***/
 
 /*** Miami sunset ***/
-// #define RGB_MATRIX_STARTUP_HUE 136 // Tweak for massdrop keycaps
-// #define RGB_MATRIX_STARTUP_SPD 48
-// #define RGB_MATRIX_STARTUP_ALT_HUE 256-RGB_MATRIX_STARTUP_HUE // Red -> orange
-// #define RGB_MATRIX_STARTUP_ALT_SPD 14-RGB_MATRIX_STARTUP_SPD
-// #define RGB_MATRIX_STARTUP_ALT_SAT 16 // RGB_MATRIX_REACTIVE_HIGHLIGHT, orange
+#define RGB_MATRIX_STARTUP_HUE 136 // Tweak for massdrop keycaps
+#define RGB_MATRIX_STARTUP_SPD 48
+#define RGB_MATRIX_STARTUP_ALT_HUE 256-RGB_MATRIX_STARTUP_HUE // Red -> orange
+#define RGB_MATRIX_STARTUP_ALT_SPD 14-RGB_MATRIX_STARTUP_SPD
+#define RGB_MATRIX_STARTUP_ALT_SAT 16 // RGB_MATRIX_REACTIVE_HIGHLIGHT, orange
 
 /*** Toxic nature ***/
-#define RGB_MATRIX_STARTUP_HUE 68 // Green -> blue
-#define RGB_MATRIX_STARTUP_SPD 36
-#define RGB_MATRIX_STARTUP_ALT_HUE 176-RGB_MATRIX_STARTUP_HUE // Purple
-#define RGB_MATRIX_STARTUP_ALT_SPD 14-RGB_MATRIX_STARTUP_SPD
-#define RGB_MATRIX_STARTUP_ALT_SAT 184 // RGB_MATRIX_REACTIVE_HIGHLIGHT, purple
+// #define RGB_MATRIX_STARTUP_HUE 68 // Green -> blue
+// #define RGB_MATRIX_STARTUP_SPD 36
+// #define RGB_MATRIX_STARTUP_ALT_HUE 176-RGB_MATRIX_STARTUP_HUE // Purple
+// #define RGB_MATRIX_STARTUP_ALT_SPD 14-RGB_MATRIX_STARTUP_SPD
+// #define RGB_MATRIX_STARTUP_ALT_SAT 184 // RGB_MATRIX_REACTIVE_HIGHLIGHT, purple
 
 /*** RGB behaviour options ***/
 // #define RGB_MATRIX_BLEND_RGB

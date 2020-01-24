@@ -9,6 +9,7 @@ enum alt_keycodes {
     DBG_MOU,               //DEBUG Toggle Mouse Prints
     MD_BOOT,               //Restart into bootloader after hold timeout
     RH_DEMO,               //Demo mode
+    RH_PROF                //Cycle through RGB profiles
 };
 
 keymap_config_t keymap_config;
@@ -42,7 +43,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_GRV,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_DEL,  KC_MPLY, \
         _______, RGB_SPD, RGB_VAI, RGB_SPI, RGB_HUI, RGB_SAI, _______, U_T_AUTO,U_T_AGCR,_______, KC_PSCR, KC_SLCK, KC_PAUS, KC_BSLS, KC_END, \
         TD(CTRL),RGB_RMOD,RGB_VAD, RGB_MOD, RGB_HUD, RGB_SAD, _______, _______, _______ ,_______, _______, _______,          _______, KC_VOLU, \
-        _______, RGB_TOG, _______, _______, _______, MD_BOOT, NK_TOGG, DBG_TOG, DBG_MTRX,DBG_KBD, _______, _______,          KC_PGUP, KC_VOLD, \
+        _______, RGB_TOG, RH_PROF, _______, _______, MD_BOOT, NK_TOGG, DBG_TOG, DBG_MTRX,DBG_KBD, _______, _______,          KC_PGUP, KC_VOLD, \
         RH_DEMO, _______, _______,                            _______,                            _______, RH_DEMO, KC_WBAK, KC_PGDN, KC_WFWD  \
     ),
     [3] = LAYOUT_65_ansi_blocker( // Mac-layout
@@ -77,6 +78,28 @@ static bool reset;
 static bool demo_held;
 static bool demo_mode;
 static bool rgb_flash;
+
+typedef struct {
+    rgb_config_t config;
+    rgb_config_t alt_config;
+} rgb_profile_t;
+
+rgb_profile_t rgb_profiles[] = {
+    [0] = {{ .enable=1, .mode=38, .hsv={ 136, 255, 255 }, .speed=48 },
+           { .enable=0, .mode=0, .hsv={ 120, 16, 255 }, .speed=222 }},
+    [1] = {{ .enable=1, .mode=38, .hsv={ 0, 255, 255 }, .speed=20 },
+           { .enable=0, .mode=0, .hsv={ 180, 212, 255 }, .speed=246 }},
+    [2] = {{ .enable=1, .mode=38, .hsv={ 68, 255, 255 }, .speed=36 },
+           { .enable=0, .mode=0, .hsv={ 108, 184, 255 }, .speed=234 }},
+    [3] = {{ .enable=1, .mode=38, .hsv={ 108, 255, 255 }, .speed=40 },
+           { .enable=0, .mode=0, .hsv={ 136, 224, 255 }, .speed=226 }},
+    [4] = {{ .enable=1, .mode=38, .hsv={ 0, 255, 255 }, .speed=20 },
+           { .enable=0, .mode=0, .hsv={ 132, 140, 255 }, .speed=18 }},
+    [5] = {{ .enable=1, .mode=38, .hsv={ 244, 255, 255 }, .speed=120 },
+           { .enable=0, .mode=0, .hsv={ 128, 232, 255 }, .speed=0 }},
+};
+
+uint8_t profile_count = sizeof(rgb_profiles) / sizeof(rgb_profiles[0]);
 
 // Runs just one time when the keyboard initializes.
 void matrix_init_user(void) {
@@ -121,6 +144,7 @@ void matrix_scan_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     key_timer = timer_read32();
+    static uint8_t profile = 0;
 
     // Handle demo-mode
     if (keycode == RH_DEMO) {
@@ -258,6 +282,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 return false;
             }
             return true;
+        case RH_PROF:
+            if (record->event.pressed) {
+                profile++;
+                dprintf("profile: %u\n", profile);
+                if (profile == profile_count) profile = 0;
+                
+                rgb_matrix_config = rgb_profiles[profile].config;
+                rgb_matrix_alt_config = rgb_profiles[profile].alt_config;
+            }
+            return false;
         case U_T_AUTO:
             if (record->event.pressed && MODS_SHIFT && MODS_CTRL) {
                 TOGGLE_FLAG_AND_PRINT(usb_extra_manual, "USB extra port manual mode");

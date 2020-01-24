@@ -41,8 +41,12 @@ bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
 
     #ifdef CONSOLE_ENABLE
         if (!record->event.pressed) {
-            dprintf("RGB: hue: %u, sat: %u, val: %u, spd: %u, mode: %u\n", rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, rgb_matrix_config.hsv.v, rgb_matrix_config.speed, rgb_matrix_config.mode);
-            dprintf("ALT: hue: %u, sat: %u, val: %u, spd: %u\n", rgb_matrix_alt_config.hsv.h, rgb_matrix_alt_config.hsv.s, rgb_matrix_alt_config.hsv.v, rgb_matrix_alt_config.speed);
+            dprintf("    [x] = {{ .enable=%u, .mode=%u, .hsv={ %u, %u, %u }, .speed=%u },\n"\
+                    "           { .enable=%u, .mode=%u, .hsv={ %u, %u, %u }, .speed=%u }},\n",
+           rgb_matrix_config.enable, rgb_matrix_config.mode, rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, rgb_matrix_config.hsv.v, rgb_matrix_config.speed,
+           rgb_matrix_alt_config.enable, rgb_matrix_alt_config.mode, rgb_matrix_alt_config.hsv.h, rgb_matrix_alt_config.hsv.s, rgb_matrix_alt_config.hsv.v, rgb_matrix_alt_config.speed);
+            // dprintf("RGB: hue: %u, sat: %u, val: %u, spd: %u, mode: %u\n", rgb_matrix_config.hsv.h, rgb_matrix_config.hsv.s, rgb_matrix_config.hsv.v, rgb_matrix_config.speed, rgb_matrix_config.mode);
+            // dprintf("ALT: hue: %u, sat: %u, val: %u, spd: %u\n", rgb_matrix_alt_config.hsv.h, rgb_matrix_alt_config.hsv.s, rgb_matrix_alt_config.hsv.v, rgb_matrix_alt_config.speed);
         }
     #endif
 
