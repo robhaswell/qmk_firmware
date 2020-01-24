@@ -160,7 +160,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             keycode != RGB_VAI &&
             keycode != RGB_VAD &&
             keycode != RGB_SPI &&
-            keycode != RGB_SPD) return false;
+            keycode != RGB_SPD &&
+            keycode != RH_PROF) return false;
     }
 
     /* Handle logic to facilitate win+3 = # (KC_BSLS)
