@@ -138,7 +138,6 @@ void matrix_scan_user(void) {
     if (cycle_timer && timer_elapsed32(cycle_timer) > 250) {
         // Cycle the RGB configs
         rgb_matrix_config.hsv.h += 1;
-        rgb_matrix_alt_config.hsv.h += 1;
         rgb_matrix_alt_config.hsv.s += 1;
         cycle_timer = timer_read32();
     }
