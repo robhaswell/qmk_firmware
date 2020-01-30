@@ -9,7 +9,8 @@ enum alt_keycodes {
     DBG_MOU,               //DEBUG Toggle Mouse Prints
     MD_BOOT,               //Restart into bootloader after hold timeout
     RH_DEMO,               //Demo mode
-    RH_PROF                //Cycle through RGB profiles
+    RH_PROF,               //Cycle through RGB profiles
+    RH_CYCL,               //Cycle through RGB hues
 };
 
 keymap_config_t keymap_config;
@@ -43,7 +44,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_GRV,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_DEL,  KC_MPLY, \
         _______, RGB_SPD, RGB_VAI, RGB_SPI, RGB_HUI, RGB_SAI, _______, U_T_AUTO,U_T_AGCR,_______, KC_PSCR, KC_SLCK, KC_PAUS, KC_BSLS, KC_END, \
         TD(CTRL),RGB_RMOD,RGB_VAD, RGB_MOD, RGB_HUD, RGB_SAD, _______, _______, _______ ,_______, _______, _______,          _______, KC_VOLU, \
-        _______, RGB_TOG, RH_PROF, _______, _______, MD_BOOT, NK_TOGG, DBG_TOG, DBG_MTRX,DBG_KBD, _______, _______,          KC_PGUP, KC_VOLD, \
+        _______, RGB_TOG, RH_PROF, RH_CYCL, _______, MD_BOOT, NK_TOGG, DBG_TOG, DBG_MTRX,DBG_KBD, _______, _______,          KC_PGUP, KC_VOLD, \
         RH_DEMO, _______, _______,                            _______,                            _______, RH_DEMO, KC_WBAK, KC_PGDN, KC_WFWD  \
     ),
     [3] = LAYOUT_65_ansi_blocker( // Mac-layout
@@ -73,6 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 static uint32_t flash_timer;
 static uint32_t key_timer;
+static uint32_t cycle_timer;
 
 static bool reset;
 static bool demo_held;
@@ -94,7 +96,7 @@ rgb_profile_t rgb_profiles[] = {
     [3] = {{ .enable=1, .mode=38, .hsv={ 108, 255, 255 }, .speed=40 },
            { .enable=0, .mode=0, .hsv={ 136, 224, 255 }, .speed=226 }},
     [4] = {{ .enable=1, .mode=38, .hsv={ 0, 255, 255 }, .speed=20 },
-           { .enable=0, .mode=0, .hsv={ 132, 140, 255 }, .speed=18 }},
+           { .enable=0, .mode=0, .hsv={ 136, 140, 255 }, .speed=24 }},
     [5] = {{ .enable=1, .mode=38, .hsv={ 244, 255, 255 }, .speed=120 },
            { .enable=0, .mode=0, .hsv={ 128, 232, 255 }, .speed=0 }},
 };
@@ -133,6 +135,13 @@ void matrix_scan_user(void) {
         rgb_matrix_config.hsv.h += 128;
     }
 
+    if (cycle_timer && timer_elapsed32(cycle_timer) > 250) {
+        // Cycle the RGB configs
+        rgb_matrix_config.hsv.h += 1;
+        rgb_matrix_alt_config.hsv.h += 1;
+        rgb_matrix_alt_config.hsv.s += 1;
+        cycle_timer = timer_read32();
+    }
 };
 
 #define MODS_SHIFT  (get_mods() & MOD_BIT(KC_LSHIFT) || get_mods() & MOD_BIT(KC_RSHIFT))
@@ -161,6 +170,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             keycode != RGB_VAD &&
             keycode != RGB_SPI &&
             keycode != RGB_SPD &&
+            keycode != RGB_MOD &&
+            keycode != RGB_RMOD &&
             keycode != RH_PROF) return false;
     }
 
@@ -291,6 +302,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 
                 rgb_matrix_config = rgb_profiles[profile].config;
                 rgb_matrix_alt_config = rgb_profiles[profile].alt_config;
+            }
+            return false;
+        case RH_CYCL:
+            if (record->event.pressed) {
+                if (cycle_timer) cycle_timer = 0;
+                else             cycle_timer = timer_read32();
             }
             return false;
         case U_T_AUTO:
