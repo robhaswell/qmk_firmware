@@ -179,6 +179,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     If:
     * Win is pressed down = NOOP
     * Win+3 is pressed = LGUI up if down, KC_BSLS tapped
+    * Win+space is pressed = LGUI up if down, KC_SPACE tapped
     * Win+ANY is pressed = LGUI down, ANY reg/unreg
     * Win released = LGUI up if down, else tap LGUI if KC_BSLS not sent
     */
@@ -198,7 +199,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         if (lgui_down) {
             // LGUI is held down so there is some action to take
-            if (keycode == KC_3) {
+            if (keycode == KC_3 || keycode == KC_SPACE) {
                 // Our special key 3 has been pressed
                 lgui_mute = true; // Suppress LGUI being tapped when it comes back up again
                 bsls_mode = true; // Flag the keycode for special handling
@@ -214,6 +215,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 register_code(KC_BSLS);
             else {
                 unregister_code(KC_BSLS);
+                bsls_mode = false;
+            }
+            return false;
+        }
+        if (keycode == KC_SPACE && bsls_mode) {
+            // Send/unsend KC_SPACE
+            if (record->event.pressed)
+                register_code(KC_SPACE);
+            else {
+                unregister_code(KC_SPACE);
                 bsls_mode = false;
             }
             return false;
