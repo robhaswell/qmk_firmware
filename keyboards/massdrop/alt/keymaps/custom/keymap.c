@@ -89,15 +89,11 @@ typedef struct {
 rgb_profile_t rgb_profiles[] = {
     [0] = {{ .enable=1, .mode=38, .hsv={ 136, 255, 255 }, .speed=48 },
            { .enable=0, .mode=0, .hsv={ 120, 16, 255 }, .speed=222 }},
-    [1] = {{ .enable=1, .mode=38, .hsv={ 0, 255, 255 }, .speed=20 },
-           { .enable=0, .mode=0, .hsv={ 180, 212, 255 }, .speed=246 }},
-    [2] = {{ .enable=1, .mode=38, .hsv={ 68, 255, 255 }, .speed=36 },
+    [1] = {{ .enable=1, .mode=38, .hsv={ 68, 255, 255 }, .speed=36 },
            { .enable=0, .mode=0, .hsv={ 108, 184, 255 }, .speed=234 }},
-    [3] = {{ .enable=1, .mode=38, .hsv={ 108, 255, 255 }, .speed=40 },
-           { .enable=0, .mode=0, .hsv={ 136, 224, 255 }, .speed=226 }},
-    [4] = {{ .enable=1, .mode=38, .hsv={ 0, 255, 255 }, .speed=20 },
+    [2] = {{ .enable=1, .mode=39, .hsv={ 0, 255, 255 }, .speed=20 },
            { .enable=0, .mode=0, .hsv={ 136, 140, 255 }, .speed=24 }},
-    [5] = {{ .enable=1, .mode=38, .hsv={ 244, 255, 255 }, .speed=120 },
+    [3] = {{ .enable=1, .mode=38, .hsv={ 244, 255, 255 }, .speed=120 },
            { .enable=0, .mode=0, .hsv={ 128, 232, 255 }, .speed=0 }},
 };
 
