@@ -87,12 +87,12 @@ typedef struct {
 } rgb_profile_t;
 
 rgb_profile_t rgb_profiles[] = {
-    [0] = {{ .enable=1, .mode=38, .hsv={ 136, 255, 255 }, .speed=48 },
-           { .enable=0, .mode=0, .hsv={ 120, 16, 255 }, .speed=222 }},
-    [1] = {{ .enable=1, .mode=38, .hsv={ 68, 255, 255 }, .speed=36 },
-           { .enable=0, .mode=0, .hsv={ 108, 184, 255 }, .speed=234 }},
-    [2] = {{ .enable=1, .mode=39, .hsv={ 0, 255, 255 }, .speed=20 },
+    [0] = {{ .enable=1, .mode=39, .hsv={ 0, 255, 255 }, .speed=20 },
            { .enable=0, .mode=0, .hsv={ 136, 140, 255 }, .speed=24 }},
+    [1] = {{ .enable=1, .mode=38, .hsv={ 136, 255, 255 }, .speed=48 },
+           { .enable=0, .mode=0, .hsv={ 120, 16, 255 }, .speed=222 }},
+    [2] = {{ .enable=1, .mode=38, .hsv={ 68, 255, 255 }, .speed=36 },
+           { .enable=0, .mode=0, .hsv={ 108, 184, 255 }, .speed=234 }},
     [3] = {{ .enable=1, .mode=38, .hsv={ 244, 255, 255 }, .speed=120 },
            { .enable=0, .mode=0, .hsv={ 128, 232, 255 }, .speed=0 }},
 };
@@ -305,7 +305,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 profile++;
                 dprintf("profile: %u\n", profile);
                 if (profile == profile_count) profile = 0;
-                
+
                 rgb_matrix_config = rgb_profiles[profile].config;
                 rgb_matrix_alt_config = rgb_profiles[profile].alt_config;
             }
