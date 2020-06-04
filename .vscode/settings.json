@@ -9,17 +9,17 @@
         "**/*.bin": true
     },
     "files.associations": {
-      "*.h": "c",
-      "*.c": "c",
-      "*.cpp": "cpp",
-      "*.hpp": "cpp",
-      "xstddef": "c",
-      "type_traits": "c",
-      "utility": "c",
-      "chrono": "c",
-      "cmath": "c",
-      "*.inc": "c",
-      "algorithm": "c"
+        "*.h": "c",
+        "*.c": "c",
+        "*.inc": "c",
+        "*.cpp": "cpp",
+        "*.hpp": "cpp",
+        "xstddef": "c",
+        "type_traits": "c",
+        "utility": "c"
     },
-    "C_Cpp.errorSquiggles": "Disabled"
+    "[markdown]": {
+        "editor.trimAutoWhitespace": false,
+        "files.trimTrailingWhitespace": false
+    }
 }
