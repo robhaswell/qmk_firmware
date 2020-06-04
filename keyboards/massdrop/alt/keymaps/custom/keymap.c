@@ -86,28 +86,37 @@ typedef struct {
     rgb_config_t alt_config;
 } rgb_profile_t;
 
+static uint8_t profile = 0; // Initial profile index
 rgb_profile_t rgb_profiles[] = {
+    /*** Synthwave ***/
     [0] = {{ .enable=1, .mode=39, .hsv={ 0, 255, 255 }, .speed=20 },
            { .enable=0, .mode=0, .hsv={ 136, 140, 255 }, .speed=24 }},
+    /*** Miami sunset ***/
     [1] = {{ .enable=1, .mode=38, .hsv={ 136, 255, 255 }, .speed=48 },
            { .enable=0, .mode=0, .hsv={ 120, 16, 255 }, .speed=222 }},
+    /*** Toxic nature ***/
     [2] = {{ .enable=1, .mode=38, .hsv={ 68, 255, 255 }, .speed=36 },
            { .enable=0, .mode=0, .hsv={ 108, 184, 255 }, .speed=234 }},
+    /*** Rainbarf ***/
     [3] = {{ .enable=1, .mode=38, .hsv={ 244, 255, 255 }, .speed=120 },
            { .enable=0, .mode=0, .hsv={ 128, 232, 255 }, .speed=0 }},
 };
-
+void set_profile(uint8_t profile) {
+    rgb_matrix_config = rgb_profiles[profile].config;
+    rgb_matrix_alt_config = rgb_profiles[profile].alt_config;
+}
 uint8_t profile_count = sizeof(rgb_profiles) / sizeof(rgb_profiles[0]);
 
 // Runs just one time when the keyboard initializes.
-void matrix_init_user(void) {
-};
+// void matrix_init_user(void) {
+// };
 
-// void keyboard_post_init_user(void) {
+void keyboard_post_init_user(void) {
+    set_profile(profile);
 //     #ifdef CONSOLE_ENABLE
 //         debug_enable = true; // If debugging is compiled in then enable it to begin with
 //     #endif
-// }
+}
 
 // Runs constantly in the background, in a loop.
 void matrix_scan_user(void) {
@@ -148,7 +157,6 @@ void matrix_scan_user(void) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     key_timer = timer_read32();
-    static uint8_t profile = 0;
 
     // Handle demo-mode
     if (keycode == RH_DEMO) {
@@ -306,8 +314,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 dprintf("profile: %u\n", profile);
                 if (profile == profile_count) profile = 0;
 
-                rgb_matrix_config = rgb_profiles[profile].config;
-                rgb_matrix_alt_config = rgb_profiles[profile].alt_config;
+                set_profile(profile);
             }
             return false;
         case RH_CYCL:

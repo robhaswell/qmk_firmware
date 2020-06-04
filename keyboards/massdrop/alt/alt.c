@@ -7,6 +7,16 @@ static uint8_t user_hsv_v;
 
 rgb_config_t rgb_matrix_alt_config;
 
+#ifndef RGB_MATRIX_STARTUP_ALT_HUE
+    #define RGB_MATRIX_STARTUP_ALT_HUE 0
+#endif
+#ifndef RGB_MATRIX_STARTUP_ALT_SAT
+    #define RGB_MATRIX_STARTUP_ALT_SAT 0
+#endif
+#ifndef RGB_MATRIX_STARTUP_ALT_SPD
+    #define RGB_MATRIX_STARTUP_ALT_SPD 0
+#endif
+
 void keyboard_post_init_kb(void) {
     rgb_matrix_alt_config.hsv.h = RGB_MATRIX_STARTUP_ALT_HUE;
     rgb_matrix_alt_config.hsv.s = RGB_MATRIX_STARTUP_ALT_SAT;
