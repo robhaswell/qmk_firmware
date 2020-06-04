@@ -71,7 +71,7 @@ static bool RGB_CUSTOM_CYCLE(effect_params_t* params) {
         RGB_MATRIX_TEST_LED_FLAGS();
 
         hsv.h   = gradient_hue(i);
-        hsv.h  += scale16by8(g_rgb_counters.tick, rgb_matrix_config.speed / 24);
+        hsv.h  += scale16by8(g_rgb_timer, rgb_matrix_config.speed / 24);
         RGB rgb = hsv_to_rgb(hsv);
 
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
