@@ -17,10 +17,10 @@ This fork of the QMK firmware has some unique lighting and functionality:
 
 This fork defines some custom implementations of RGB effects, all of which are variations of a left-right gradient:
 
-* RGB_CUSTOM: A left-right gradient. Alternative colour controls underglow. Colour "speed" controls the gradient width.
-* RGB_CUSTOM_MULTICROSS: A left-right gradient with a "cross" reactive effect, like RGB_CUSTOM. Alternative saturation controls reactive colour.
-* RGB_CUSTOM_SOLID_REACTIVE_SIMPLE: A left-right gradient with a "simple" (single-key) reactive effect, like RGB_CUSTOM. Alternative saturation controls reactive colour.
-* RGB_CUSTOM_CYCLE: A left-right gradient which cycles very slowly. Like RGB_CUSTOM.
+* `RGB_CUSTOM`: A left-right gradient. Alternative colour controls underglow. Colour "speed" controls the gradient width.
+* `RGB_CUSTOM_MULTICROSS`: A left-right gradient with a "cross" reactive effect, like RGB_CUSTOM. Alternative saturation controls reactive colour.
+* `RGB_CUSTOM_SOLID_REACTIVE_SIMPLE`: A left-right gradient with a "simple" (single-key) reactive effect, like RGB_CUSTOM. Alternative saturation controls reactive colour.
+* `RGB_CUSTOM_CYCLE`: A left-right gradient which cycles very slowly. Like RGB_CUSTOM.
 
 The term "alternative colour" refers to a completely separate set of colour configuration made available by this fork. QMK provides keycodes to control the HUE, SAT, VAL and SPD (HSV & speed) of the RGB system. This fork provides an identical additional HSV & speed which are altered by holding SHIFT when using the normal HUE, SAT, VAL & SPD keycodes. This is the alternative colour configuration.
 
