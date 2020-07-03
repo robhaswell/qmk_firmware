@@ -48,14 +48,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         RH_DEMO, _______, _______,                            _______,                            _______, RH_DEMO, KC_WBAK, KC_PGDN, KC_WFWD  \
     ),
     [3] = LAYOUT_65_ansi_blocker( // Mac-layout
-        KC_ESC,  _______, KC_2,    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
+        KC_GESC, _______, KC_2,    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_BSLS, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_QUOT,          _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, \
-        _______, KC_LALT, LM(4, MOD_LGUI),                    _______,                            KC_RGUI, _______, _______, _______, _______  \
+        MO(4),   KC_LALT, LM(5, MOD_LGUI),                    _______,                            KC_RGUI, _______, _______, _______, _______  \
     ),
-    [4] = LAYOUT_65_ansi_blocker(
-        KC_NUBS, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
+    [4] = LAYOUT_65_ansi_blocker( // Mac secondary
+        KC_GRV,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,  KC_DEL,  KC_MPLY, \
+        _______, RGB_SPD, RGB_VAI, RGB_SPI, RGB_HUI, RGB_SAI, _______, U_T_AUTO,U_T_AGCR,_______, KC_PSCR, KC_SLCK, KC_PAUS, KC_BSLS, KC_END, \
+        TD(CTRL),RGB_RMOD,RGB_VAD, RGB_MOD, RGB_HUD, RGB_SAD, _______, _______, _______ ,_______, _______, _______,          _______, KC_VOLU, \
+        _______, RGB_TOG, RH_PROF, RH_CYCL, _______, MD_BOOT, NK_TOGG, DBG_TOG, DBG_MTRX,DBG_KBD, _______, _______,          KC_BRMU, KC_VOLD, \
+        RH_DEMO, _______, _______,                            _______,                            _______, RH_DEMO, KC_WBAK, KC_BRMD, KC_WFWD  \
+    ),
+    [5] = LAYOUT_65_ansi_blocker(
+        KC_GESC, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, \
         _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,          _______, _______, \
@@ -235,20 +242,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
+    // Store what the RGB config was before entering mac mode
+    static rgb_config_t main_rgb_matrix_config;
+
     switch (keycode) {
         case RGB_VAI:
-            // Drop into mac-mode on fn+ralt+w
+            // Drop into MAC_MODE on fn+ralt+w
             if (record->event.pressed && (MODS_ALT || get_mods() & MOD_BIT(KC_RGUI))) {
                 if (MAC_MODE) {
                     layer_off(3);
-                    // Turn on RGB
-                    rgb_matrix_set_flags(LED_FLAG_ALL);
-                    rgb_matrix_enable_noeeprom();
+                    // Restore RGB
+                    rgb_matrix_config = main_rgb_matrix_config;
                 } else {
                     layer_on(3);
-                    // Turn off RGB
-                    rgb_matrix_set_flags(LED_FLAG_NONE);
-                    rgb_matrix_disable_noeeprom();
+                    // Set RGB to white
+                    main_rgb_matrix_config = rgb_matrix_config;
+                    rgb_matrix_config.mode = 1;
+                    rgb_matrix_config.hsv.h = 0;
+                    rgb_matrix_config.hsv.s = 0;
+                    rgb_matrix_config.hsv.v = UINT8_MAX;
+                    rgb_matrix_config.speed = 0;
                 }
                 return false;
             }
