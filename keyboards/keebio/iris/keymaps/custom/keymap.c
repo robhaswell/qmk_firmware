@@ -73,6 +73,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 #define MODS_SHIFT  (get_mods() & MOD_BIT(KC_LSHIFT) || get_mods() & MOD_BIT(KC_RSHIFT))
+#define MODS_CTRL   (get_mods() & MOD_BIT(KC_LCTL) || get_mods() & MOD_BIT(KC_RCTRL))
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
@@ -121,7 +122,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
         case KC_ESC:
-            if (!MODS_SHIFT)
+            if (!(MODS_SHIFT && !MODS_CTRL))
                 break;
             if (record->event.pressed) {
                 register_code(KC_BSLS);
