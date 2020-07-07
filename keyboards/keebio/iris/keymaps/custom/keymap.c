@@ -12,14 +12,16 @@ enum custom_keycodes {
   QWERTY = SAFE_RANGE,
   LOWER,
   RAISE,
-  ADJUST
+  ADJUST,
+  UK_2,
+  UK_3
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_WINDOWS] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
-     KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                               KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSPC,
+     KC_ESC,  KC_1,    UK_2,    KC_3,    KC_4,    KC_5,                               KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_BSPC,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
      KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                               KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
@@ -33,7 +35,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_MAC] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
-     KC_GESC, _______, _______, _______, _______, _______,                            _______, _______, _______, _______, _______, _______,
+     KC_GESC, _______, KC_2,    _______, _______, _______,                            _______, _______, _______, _______, _______, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
      _______, _______, _______, _______, _______, _______,                            _______, _______, _______, _______, _______, _______,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
@@ -47,11 +49,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_LOWER] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
-     KC_GRV,  KC_EXLM, KC_AT,   KC_BSLS, KC_DLR,  KC_PERC,                            KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_DEL,
+     KC_GRV,  KC_EXLM, KC_AT,   UK_3,    KC_DLR,  KC_PERC,                            KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_DEL,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
      RESET,   _______,   KC_UP, _______, _______, KC_LPRN,                            KC_RPRN, _______, KC_UP,   _______, KC_MPLY, KC_EQL,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     KC_DEL,  KC_LEFT, KC_DOWN, KC_RGHT, _______, KC_LBRC,                            KC_RBRC, KC_LEFT, KC_DOWN, KC_RGHT, KC_PGUP, KC_PGUP,
+     KC_DEL,  KC_LEFT, KC_DOWN, KC_RGHT, _______, KC_LBRC,                            KC_RBRC, KC_LEFT, KC_DOWN, KC_RGHT, _______, KC_PGUP,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
      _______, _______, _______, _______, _______, KC_LCBR, _______,          _______, KC_RCBR, _______, KC_HOME, KC_END,  KC_BSLS, KC_PGDN,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
@@ -88,6 +90,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
+#define MAC_MODE    (IS_LAYER_ON(_MAC))
 #define MODS_SHIFT  (get_mods() & MOD_BIT(KC_LSHIFT) || get_mods() & MOD_BIT(KC_RSHIFT))
 #define MODS_CTRL   (get_mods() & MOD_BIT(KC_LCTL) || get_mods() & MOD_BIT(KC_RCTRL))
 
@@ -127,25 +130,49 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
             break;
-        // Custom keycodes for weird charmap
-        case KC_2:
-            if (!MODS_SHIFT)
-                break;
-            if (record->event.pressed) {
-                register_code(KC_QUOT);
+        // Workarounds for hybrid ANSI-UK charmap
+        case UK_2:
+            if (MODS_SHIFT) {
+                if (record->event.pressed) {
+                    register_code(KC_QUOT);
+                } else {
+                    unregister_code(KC_QUOT);
+                }
             } else {
-                unregister_code(KC_QUOT);
+                if (record->event.pressed) {
+                    register_code(KC_2);
+                } else {
+                    unregister_code(KC_2);
+                }
+            }
+            return false;
+        case UK_3:
+            if (MAC_MODE) {
+                if (record->event.pressed) {
+                    register_code(KC_LALT);
+                    register_code(KC_3);
+                } else {
+                    unregister_code(KC_3);
+                    unregister_code(KC_LALT);
+                }
+            } else {
+                if (record->event.pressed) {
+                    register_code(KC_BSLS);
+                } else {
+                    unregister_code(KC_BSLS);
+                }
             }
             return false;
         case KC_ESC:
-            if (!(MODS_SHIFT && !MODS_CTRL))
-                break;
-            if (record->event.pressed) {
-                register_code(KC_BSLS);
-            } else {
-                unregister_code(KC_BSLS);
+            if (MODS_SHIFT && !MODS_CTRL) {
+                if (record->event.pressed) {
+                    register_code(KC_BSLS);
+                } else {
+                    unregister_code(KC_BSLS);
+                }
+                return false;
             }
-            return false;
+            break;
     }
     return true;
 }
