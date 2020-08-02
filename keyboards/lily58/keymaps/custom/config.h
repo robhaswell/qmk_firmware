@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #undef RGBLED_NUM
 #define RGBLIGHT_ANIMATIONS
-#define RGBLED_NUM 27
+#define RGBLED_NUM 5
 #define RGBLIGHT_LIMIT_VAL 120
 #define RGBLIGHT_HUE_STEP 10
 #define RGBLIGHT_SAT_STEP 17
@@ -49,10 +49,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGBLIGHT_SLEEP
 */
 
+#define RGBLIGHT_SPLIT
+
 // Encoder
 #ifdef ENCODER_ENABLE
     #define ENCODERS_PAD_A { F5 }
     #define ENCODERS_PAD_B { F4 }
     // Enable if encoder is on the left side
-    // #define ENCODER_DIRECTION_FLIP
+    #define ENCODER_DIRECTION_FLIP
 #endif
