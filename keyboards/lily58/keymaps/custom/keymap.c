@@ -195,7 +195,9 @@ void encoder_update_user(uint8_t index, bool clockwise) {
      } else if (layer_state_is(_RAISE)) {
         if (clockwise) {
             tap_code(KC_MS_WH_DOWN);
+            tap_code(KC_MS_WH_DOWN);
         } else {
+            tap_code(KC_MS_WH_UP);
             tap_code(KC_MS_WH_UP);
         }
      } else {
