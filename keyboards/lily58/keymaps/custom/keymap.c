@@ -64,7 +64,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 [_LOWER] = LAYOUT( \
   _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, KC_PGUP, \
-  _______, _______, _______, _______, _______, KC_LPRN,                   KC_RPRN, _______, _______, _______, _______, KC_PGDN, \
+  _______, _______, _______, _______, _______, KC_LPRN,                   KC_RPRN, _______, _______, _______, KC_MPLY, KC_PGDN, \
   _______, _______, _______, _______, _______, KC_LBRC,                   KC_RBRC, _______, _______, _______, _______, KC_VOLU, \
   _______, _______, _______, _______, _______, KC_LCBR, _______, _______, KC_RCBR, _______, _______, _______, _______, KC_VOLD, \
                              KC_HOME, _______, _______, _______, _______, _______, _______, KC_END \
@@ -106,9 +106,8 @@ void matrix_init_user(void) {
 #ifdef OLED_DRIVER_ENABLE
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-  if (!is_keyboard_master())
-    return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
-  return rotation;
+    if (!is_keyboard_master()) return OLED_ROTATION_180;  // flips the display 180 degrees if offhand
+    return rotation;
 }
 
 // When you add source files to SRC in rules.mk, you can use functions.
