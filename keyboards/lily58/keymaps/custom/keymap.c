@@ -29,7 +29,20 @@ enum custom_keycodes {
   LOWER,
   RAISE,
   ADJUST,
+  ENCODER
 };
+enum encoder_modes {
+    LEFTRIGHT = 0,
+    UPDOWN,
+    SCROLL,
+    TABS
+};
+uint8_t encoder_modes_len = 4;
+uint8_t encoder_mode      = 0;
+
+#define MODS_SHIFT  (get_mods() & MOD_BIT(KC_LSHIFT) || get_mods() & MOD_BIT(KC_RSHIFT))
+#define MODS_CTRL   (get_mods() & MOD_BIT(KC_LCTL) || get_mods() & MOD_BIT(KC_RCTRL))
+#define MODS_ALT    (get_mods() & MOD_BIT(KC_LALT) || get_mods() & MOD_BIT(KC_RALT))
 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -38,7 +51,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_ESC,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                                      KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, \
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                                      KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_EQL, \
   KC_LCTRL, KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                                      KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
-  KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                  XXXXXXX,  KC_BSPC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  KC_RSFT, \
+  KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                  ENCODER,  KC_BSPC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  KC_RSFT, \
                              KC_GRV,  KC_LALT, LM(_MACGUI, MOD_LGUI), KC_SPC,   KC_ENT,   LOWER,   RAISE,   KC_BSLS \
 ),
 [_MACGUI] = LAYOUT( \
@@ -85,7 +98,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 )
 };
 
-int RGB_current_mode;
+// int RGB_current_mode;
 
 // Setting ADJUST layer RGB back to default
 void update_tri_layer_RGB(uint8_t layer1, uint8_t layer2, uint8_t layer3) {
@@ -96,11 +109,11 @@ void update_tri_layer_RGB(uint8_t layer1, uint8_t layer2, uint8_t layer3) {
   }
 }
 
-void matrix_init_user(void) {
-    #ifdef RGBLIGHT_ENABLE
-      RGB_current_mode = rgblight_config.mode;
-    #endif
-}
+// void matrix_init_user(void) {
+//     #ifdef RGBLIGHT_ENABLE
+//       RGB_current_mode = rgblight_config.mode;
+//     #endif
+// }
 
 //SSD1306 OLED update loop, make sure to enable OLED_DRIVER_ENABLE=yes in rules.mk
 #ifdef OLED_DRIVER_ENABLE
@@ -137,6 +150,8 @@ void oled_task_user(void) {
 }
 #endif // OLED_DRIVER_ENABLE
 
+
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
 #ifdef OLED_DRIVER_ENABLE
@@ -144,6 +159,18 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #endif
     // set_timelog();
   }
+
+  // Cycle through the encoder modes
+  if (keycode == ENCODER) {
+      if (record->event.pressed) {
+        encoder_mode++;
+        if (encoder_mode == encoder_modes_len) encoder_mode = 0;
+      }
+      return false;
+  }
+
+  // Reset the encoder mode if any alpha is pressed
+  if (!(MODS_ALT || MODS_CTRL || MODS_SHIFT)) encoder_mode = 0;
 
   switch (keycode) {
     case QWERTY:
@@ -186,26 +213,48 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef ENCODER_ENABLE
 void encoder_update_user(uint8_t index, bool clockwise) {
+
     if (layer_state_is(_LOWER)) {
-        if (clockwise) {
-            tap_code(KC_DOWN);
-        } else {
-            tap_code(KC_UP);
-        }
-     } else if (layer_state_is(_RAISE)) {
-        if (clockwise) {
-            tap_code(KC_MS_WH_DOWN);
-            tap_code(KC_MS_WH_DOWN);
-        } else {
-            tap_code(KC_MS_WH_UP);
-            tap_code(KC_MS_WH_UP);
-        }
-     } else {
+        encoder_mode = UPDOWN;
+    } else if (layer_state_is(_RAISE)) {
+        encoder_mode = SCROLL;
+    }
+
+    switch (encoder_mode) {
+    case LEFTRIGHT:
         if (clockwise) {
             tap_code(KC_RGHT);
         } else {
             tap_code(KC_LEFT);
         }
+        break;
+    case UPDOWN:
+        if (clockwise) {
+            tap_code(KC_DOWN);
+        } else {
+            tap_code(KC_UP);
+        }
+        break;
+    case SCROLL:
+        if (clockwise) {
+            tap_code(KC_MS_WH_DOWN);
+            tap_code(KC_MS_WH_DOWN);
+        } else {
+            tap_code(KC_MS_WH_UP);
+            tap_code(KC_MS_WH_UP);
+        }
+        break;
+    case TABS:
+        if (clockwise) {
+            register_code(KC_LCTL);
+            tap_code(KC_PGUP);
+            unregister_code(KC_LCTL);
+        } else {
+            register_code(KC_LCTL);
+            tap_code(KC_PGDN);
+            unregister_code(KC_LCTL);
+        }
+        break;
     }
 }
 #endif
