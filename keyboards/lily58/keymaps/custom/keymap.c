@@ -247,11 +247,11 @@ void encoder_update_user(uint8_t index, bool clockwise) {
     case TABS:
         if (clockwise) {
             register_code(KC_LCTL);
-            tap_code(KC_PGUP);
+            tap_code(KC_PGDN);
             unregister_code(KC_LCTL);
         } else {
             register_code(KC_LCTL);
-            tap_code(KC_PGDN);
+            tap_code(KC_PGUP);
             unregister_code(KC_LCTL);
         }
         break;
