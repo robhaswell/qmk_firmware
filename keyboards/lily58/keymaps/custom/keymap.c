@@ -150,77 +150,86 @@ void oled_task_user(void) {
 }
 #endif // OLED_DRIVER_ENABLE
 
-
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if (record->event.pressed) {
+    if (record->event.pressed) {
 #ifdef OLED_DRIVER_ENABLE
-    set_keylog(keycode, record);
+        set_keylog(keycode, record);
 #endif
-    // set_timelog();
-  }
+        // set_timelog();
+    }
 
-  // Cycle through the encoder modes
-  if (keycode == ENCODER) {
-      if (record->event.pressed) {
-        encoder_mode++;
-        if (encoder_mode == encoder_modes_len) encoder_mode = 0;
-      }
-      return false;
-  }
-
-  // Reset the encoder mode if any alpha is pressed
-  if (!(MODS_ALT || MODS_CTRL || MODS_SHIFT)) encoder_mode = 0;
-
-  switch (keycode) {
-    case QWERTY:
-      if (record->event.pressed) {
-        set_single_persistent_default_layer(_MAC);
-      }
-      return false;
-      break;
-    case LOWER:
-      if (record->event.pressed) {
-        layer_on(_LOWER);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
-      } else {
-        layer_off(_LOWER);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
-      }
-      return false;
-      break;
-    case RAISE:
-      if (record->event.pressed) {
-        layer_on(_RAISE);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
-      } else {
-        layer_off(_RAISE);
-        update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
-      }
-      return false;
-      break;
-    case ADJUST:
+    // Cycle through the encoder modes
+    if (keycode == ENCODER) {
         if (record->event.pressed) {
-          layer_on(_ADJUST);
-        } else {
-          layer_off(_ADJUST);
+            encoder_mode++;
+            if (encoder_mode == encoder_modes_len) encoder_mode = 0;
         }
         return false;
-        break;
-  }
-  return true;
+    }
+
+    // Reset the encoder mode if any alpha is pressed
+    switch (keycode) {
+        case KC_LSFT:
+        case KC_RSFT:
+        case KC_LCTRL:
+        case KC_RCTRL:
+        case KC_LALT:
+        case KC_RALT:
+            break;
+        default:
+            encoder_mode = 0;
+    }
+
+    switch (keycode) {
+        case QWERTY:
+            if (record->event.pressed) {
+                set_single_persistent_default_layer(_MAC);
+            }
+            return false;
+            break;
+        case LOWER:
+            if (record->event.pressed) {
+                layer_on(_LOWER);
+                update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
+            } else {
+                layer_off(_LOWER);
+                update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
+            }
+            return false;
+            break;
+        case RAISE:
+            if (record->event.pressed) {
+                layer_on(_RAISE);
+                update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
+            } else {
+                layer_off(_RAISE);
+                update_tri_layer_RGB(_LOWER, _RAISE, _ADJUST);
+            }
+            return false;
+            break;
+        case ADJUST:
+            if (record->event.pressed) {
+                layer_on(_ADJUST);
+            } else {
+                layer_off(_ADJUST);
+            }
+            return false;
+            break;
+    }
+    return true;
 }
 
 #ifdef ENCODER_ENABLE
 void encoder_update_user(uint8_t index, bool clockwise) {
+    uint8_t _encoder_mode = encoder_mode;
 
     if (layer_state_is(_LOWER)) {
-        encoder_mode = UPDOWN;
+        _encoder_mode = UPDOWN;
     } else if (layer_state_is(_RAISE)) {
-        encoder_mode = SCROLL;
+        _encoder_mode = SCROLL;
     }
 
-    switch (encoder_mode) {
+    switch (_encoder_mode) {
     case LEFTRIGHT:
         if (clockwise) {
             tap_code(KC_RGHT);
