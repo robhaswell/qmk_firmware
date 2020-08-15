@@ -84,8 +84,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                              KC_HOME, _______, _______, _______, _______, _______, _______, KC_END \
 ),
 [_RAISE] = LAYOUT( \
-  _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                     KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  LCTL(KC_PGUP), \
-  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, LCTL(KC_PGDN), \
+  _______, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                     KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  LGUI(LSFT(KC_LBRC)), \
+  _______, _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, LGUI(LSFT(KC_RBRC)), \
   XXXXXXX, KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, XXXXXXX,                   XXXXXXX, KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_VOLU, \
   _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_VOLD, \
                              KC_F11,  _______, _______, _______, _______, _______, _______, KC_F12 \
@@ -233,7 +233,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void encoder_update_user(uint8_t index, bool clockwise) {
     uint8_t _encoder_mode = encoder_mode;
 
-    if (layer_state_is(_LOWER)) {
+    if (layer_state_is(_ADJUST)) {
+        _encoder_mode = TABS;
+    } else if (layer_state_is(_LOWER)) {
         _encoder_mode = UPDOWN;
     } else if (layer_state_is(_RAISE)) {
         _encoder_mode = SCROLL;
@@ -265,13 +267,17 @@ void encoder_update_user(uint8_t index, bool clockwise) {
         break;
     case TABS:
         if (clockwise) {
-            register_code(KC_LCTL);
-            tap_code(KC_PGDN);
-            unregister_code(KC_LCTL);
+            register_code(KC_LGUI);
+            register_code(KC_LSFT);
+            tap_code(KC_RBRC);
+            unregister_code(KC_LSFT);
+            unregister_code(KC_LGUI);
         } else {
-            register_code(KC_LCTL);
-            tap_code(KC_PGUP);
-            unregister_code(KC_LCTL);
+            register_code(KC_LGUI);
+            register_code(KC_LSFT);
+            tap_code(KC_LBRC);
+            unregister_code(KC_LSFT);
+            unregister_code(KC_LGUI);
         }
         break;
     }
