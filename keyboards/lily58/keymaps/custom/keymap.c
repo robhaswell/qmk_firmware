@@ -53,7 +53,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_TAB,   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                                      KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_EQL, \
   KC_LCTRL, KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                                      KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
   KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,                  ENCODER,  KC_BSPC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  KC_RSFT, \
-                             KC_GRV,  KC_LALT, LM(_MACGUI, MOD_LGUI), KC_SPC,   KC_ENT,   LOWER,   RAISE,   KC_BSLS \
+                             KC_GRV,  LM(_MACGUI, MOD_LGUI), LOWER,   KC_SPC,   KC_ENT,   RAISE,   KC_LALT, KC_BSLS \
 ),
 [_MACGUI] = LAYOUT( \
   KC_GRV,  _______, _______, _______, _______, _______,                   _______, _______, _______, _______, _______, _______, \
@@ -206,6 +206,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_RCTRL:
         case KC_LALT:
         case KC_RALT:
+        case LOWER:
+        case RAISE:
             break;
         default:
             encoder_mode = 0;
@@ -263,17 +265,17 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef ENCODER_ENABLE
 void encoder_update_user(uint8_t index, bool clockwise) {
-    uint8_t _encoder_mode = encoder_mode;
+    // uint8_t _encoder_mode = encoder_mode;
 
     if (layer_state_is(_ADJUST)) {
-        _encoder_mode = TABS;
+        encoder_mode = SCROLL;
     } else if (layer_state_is(_LOWER)) {
-        _encoder_mode = UPDOWN;
+        encoder_mode = TABS;
     } else if (layer_state_is(_RAISE)) {
-        _encoder_mode = SCROLL;
+        encoder_mode = UPDOWN;
     }
 
-    switch (_encoder_mode) {
+    switch (encoder_mode) {
     case LEFTRIGHT:
         if (clockwise) {
             tap_code(KC_RGHT);
