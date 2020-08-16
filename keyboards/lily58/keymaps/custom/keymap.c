@@ -66,7 +66,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_ESC,                   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, \
   KC_TAB,                   KC_Q,   KC_W,    KC_E,    KC_R,    KC_T,                        KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_EQL, \
   KC_LCTRL,                 KC_A,   KC_S,    KC_D,    KC_F,    KC_G,                        KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
-  LM(_WINSHIFT, MOD_LSFT),  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    KC_LBRC,  KC_BSPC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  LM(_WINSHIFT, MOD_RSFT), \
+  LM(_WINSHIFT, MOD_LSFT),  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B,    ENCODER,  KC_BSPC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,  LM(_WINSHIFT, MOD_RSFT), \
                                              KC_GRV,  KC_LGUI, KC_LALT, KC_SPC,   KC_ENT,   LOWER,   RAISE,   KC_NUBS \
 ),
 [_WINSHIFT] = LAYOUT( \
@@ -94,7 +94,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_BRMU, \
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_BRMD, \
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, RGB_TOG, RGB_HUI, RGB_SAI, RGB_VAI, \
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TOG_OS,  RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD,\
+  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, TOG_OS,  RGB_MOD, RGB_HUD, RGB_SAD, RGB_VAD,\
                              _______, _______, _______, _______, _______,  _______, _______, _______ \
 )
 };
@@ -109,12 +109,6 @@ void update_tri_layer_RGB(uint8_t layer1, uint8_t layer2, uint8_t layer3) {
     layer_off(layer3);
   }
 }
-
-// void matrix_init_user(void) {
-//     #ifdef RGBLIGHT_ENABLE
-//       RGB_current_mode = rgblight_config.mode;
-//     #endif
-// }
 
 //SSD1306 OLED update loop, make sure to enable OLED_DRIVER_ENABLE=yes in rules.mk
 #ifdef OLED_DRIVER_ENABLE
@@ -133,10 +127,46 @@ const char *read_logo(void);
 // void set_timelog(void);
 // const char *read_timelog(void);
 
+char default_layer_state_str[24];
+const char *read_default_layer_state(void) {
+    switch (get_highest_layer(default_layer_state)) {
+    case _MAC:
+        snprintf(default_layer_state_str, sizeof(default_layer_state_str), "OS:      Mac");
+        break;
+    case _WIN:
+        snprintf(default_layer_state_str, sizeof(default_layer_state_str), "OS:      Windows");
+        break;
+    }
+
+    return default_layer_state_str;
+}
+
+char encoder_state_str[24];
+const char *read_encoder_state(void) {
+    switch (encoder_mode) {
+    case LEFTRIGHT:
+        snprintf(encoder_state_str, sizeof(encoder_state_str), "Encoder: Left-right");
+        break;
+    case UPDOWN:
+        snprintf(encoder_state_str, sizeof(encoder_state_str), "Encoder: Up-down");
+        break;
+    case SCROLL:
+        snprintf(encoder_state_str, sizeof(encoder_state_str), "Encoder: Scroll");
+        break;
+    case TABS:
+        snprintf(encoder_state_str, sizeof(encoder_state_str), "Encoder: Cycle tabs");
+        break;
+    }
+
+    return encoder_state_str;
+}
+
 void oled_task_user(void) {
   if (is_keyboard_master()) {
     // If you want to change the display of OLED, you need to change here
+    oled_write_ln(read_default_layer_state(), false);
     oled_write_ln(read_layer_state(), false);
+    oled_write_ln(read_encoder_state(), false);
     //oled_write_ln(read_mode_icon(keymap_config.swap_lalt_lgui), false);
     //oled_write_ln(read_host_led_state(), false);
     //oled_write_ln(read_timelog(), false);
@@ -149,6 +179,8 @@ void oled_task_user(void) {
 void keyboard_post_init_user(void) {
     #ifdef CONSOLE_ENABLE
         debug_enable = true; // If debugging is compiled in then enable it to begin with
+        debug_matrix = true;
+        // debug_keyboard = true;
     #endif
 }
 
