@@ -34,12 +34,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAPPING_TERM 100
 
 #undef RGBLED_NUM
-#define RGBLIGHT_ANIMATIONS
 #define RGBLED_NUM 5
 #define RGBLIGHT_LIMIT_VAL UINT8_MAX
-#define RGBLIGHT_HUE_STEP 10
-#define RGBLIGHT_SAT_STEP 17
-#define RGBLIGHT_VAL_STEP 17
+#define RGBLIGHT_HUE_STEP 5
+#define RGBLIGHT_SAT_STEP 25
+#define RGBLIGHT_VAL_STEP 25
+
+// Define which RGB lighting effects we want access to so we can reduce the footprint
+// #define RGBLIGHT_ANIMATIONS
+#define RGBLIGHT_EFFECT_STATIC_GRADIENT
+#define RGBLIGHT_EFFECT_RAINBOW_SWIRL
 
 // Underglow
 /*
