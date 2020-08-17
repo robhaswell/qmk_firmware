@@ -17,6 +17,7 @@ RGBLIGHT_ENABLE = yes       # Enable WS2812 RGB underlight.
 SWAP_HANDS_ENABLE = no      # Enable one-hand typing
 OLED_DRIVER_ENABLE = no    # OLED displayz
 ENCODER_ENABLE = yes        # Encoder support
+KEY_LOCK_ENABLE = yes		# Enable key lock support
 
 # Do not enable SLEEP_LED_ENABLE. it uses the same timer as BACKLIGHT_ENABLE
 SLEEP_LED_ENABLE = no    # Breathing sleep LED during USB suspend
