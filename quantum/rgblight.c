@@ -88,7 +88,7 @@ const uint8_t led_map[] PROGMEM = RGBLIGHT_LED_MAP;
 #endif
 
 #ifdef RGBLIGHT_EFFECT_STATIC_GRADIENT
-__attribute__((weak)) const uint8_t RGBLED_GRADIENT_RANGES[] PROGMEM = {255, 170, 127, 85, 64};
+__attribute__((weak)) const uint8_t RGBLED_GRADIENT_RANGES[] PROGMEM = {255, 127, 64, 32, 16};
 #endif
 
 rgblight_config_t rgblight_config;
