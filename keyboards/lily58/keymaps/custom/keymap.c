@@ -35,8 +35,8 @@ enum custom_keycodes {
 enum encoder_modes {
     LEFTRIGHT = 0,
     UPDOWN,
+    TABS,
     SCROLL,
-    TABS
 };
 uint8_t encoder_modes_len = 4;
 uint8_t encoder_mode      = 0;
@@ -265,17 +265,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #ifdef ENCODER_ENABLE
 void encoder_update_user(uint8_t index, bool clockwise) {
-    // uint8_t _encoder_mode = encoder_mode;
+    uint8_t _encoder_mode = encoder_mode;
 
     if (layer_state_is(_ADJUST)) {
-        encoder_mode = SCROLL;
+        _encoder_mode = SCROLL;
+        encoder_mode  = _encoder_mode; // persist
     } else if (layer_state_is(_LOWER)) {
-        encoder_mode = TABS;
+        _encoder_mode = TABS;
+        encoder_mode  = _encoder_mode; // persist
     } else if (layer_state_is(_RAISE)) {
-        encoder_mode = UPDOWN;
+        _encoder_mode = UPDOWN;
     }
 
-    switch (encoder_mode) {
+    switch (_encoder_mode) {
     case LEFTRIGHT:
         if (clockwise) {
             tap_code(KC_RGHT);
