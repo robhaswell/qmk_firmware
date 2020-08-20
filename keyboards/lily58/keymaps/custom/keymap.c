@@ -214,7 +214,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (MODS_SHIFT || MODS_ALT || MODS_CTRL || MODS_GUI)
                     // Do not reset if any modifiers are held
                     break;
-                dprint("resetting encoder\n");
                 encoder_mode = 0;
         }
     }
