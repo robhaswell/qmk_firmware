@@ -154,6 +154,13 @@ const char *read_encoder_state(void) {
     return encoder_state_str;
 }
 
+char wpm_str[24];
+const char *read_wpm(void) {
+    sprintf(wpm_str, "WPM:     %03d", get_current_wpm());
+    return wpm_str;
+}
+
+
 void oled_task_user(void) {
   if (is_keyboard_master()) {
     // If you want to change the display of OLED, you need to change here
@@ -162,7 +169,8 @@ void oled_task_user(void) {
     oled_write_ln(read_encoder_state(), false);
     //oled_write_ln(read_mode_icon(keymap_config.swap_lalt_lgui), false);
     //oled_write_ln(read_host_led_state(), false);
-    //oled_write_ln(read_timelog(), false);
+    // oled_write_ln(read_timelog(), false);
+    oled_write_ln(read_wpm(), false);
   } else {
     oled_write(read_logo(), false);
   }
