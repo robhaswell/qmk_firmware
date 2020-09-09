@@ -74,7 +74,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, _______, _______, _______, _______, KC_LPRN,                   KC_RPRN, KC_P4,   KC_P5,   KC_P6,   KC_MPLY, KC_PGDN, \
   _______, _______, _______, _______, _______, KC_LBRC,                   KC_RBRC, KC_P1,   KC_P2,   KC_P3,   _______, XXXXXXX, \
   _______, _______, _______, _______, _______, KC_LCBR, _______, KC_DEL,  KC_RCBR, KC_P0,   _______, _______, _______, _______, \
-                             KC_HOME, _______, _______, KC_LALT, _______, _______, _______, KC_END \
+                             KC_HOME, _______, _______, _______, _______, _______, _______, KC_END \
 ),
 [_RAISE] = LAYOUT( \
   KC_GRV,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                     KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  LGUI(LSFT(KC_LBRC)), \
