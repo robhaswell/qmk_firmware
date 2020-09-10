@@ -33,9 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAPPING_FORCE_HOLD
 #define TAPPING_TERM 100
 
-// #undef RGBLED_NUM
-// #define RGBLED_NUM 6
-// #define RGBLIGHT_LIMIT_VAL UINT8_MAX
 #define RGBLIGHT_HUE_STEP 2
 #define RGBLIGHT_SAT_STEP 25
 #define RGBLIGHT_VAL_STEP 25
@@ -45,23 +42,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RGBLIGHT_EFFECT_STATIC_GRADIENT
 #define RGBLIGHT_EFFECT_RAINBOW_SWIRL
 
-// Underglow
-/*
-#undef RGBLED_NUM
-#define RGBLED_NUM 14    // Number of LEDs
-#define RGBLIGHT_ANIMATIONS
+// RGBLIGHT options
 #define RGBLIGHT_SLEEP
-*/
-
-#define RGBLIGHT_SPLIT
+#undef RGBLIGHT_LIMIT_VAL
+#define RGBLIGHT_LIMIT_VAL UINT8_MAX
 
 // Encoder
-// #ifdef ENCODER_ENABLE
-//     #define ENCODERS_PAD_A { F5 }
-//     #define ENCODERS_PAD_B { F4 }
-//     // Enable if encoder is on the left side
+#ifdef ENCODER_ENABLE
+    // Enable if encoder is on the left side
     #define ENCODER_DIRECTION_FLIP
-// #endif
+#endif
 
 // Enable some space-saving measures for QMK
 #define NO_ACTION_MACRO

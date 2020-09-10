@@ -134,8 +134,37 @@ const char *read_default_layer_state(void) {
     return default_layer_state_str;
 }
 
-char encoder_state_str[24];
+#define L_BASE 0
+#define L_LOWER (1 << 3)
+#define L_RAISE (1 << 4)
+#define L_ADJUST (1 << 5)
+#define L_ADJUST_TRI (L_ADJUST | L_RAISE | L_LOWER)
+
+const char *read_layer_state(void) {
+    static char layer_state_str[24];
+    switch (layer_state) {
+    case L_BASE:
+        snprintf(layer_state_str, sizeof(layer_state_str), "Layer:   Default");
+        break;
+    case L_RAISE:
+        snprintf(layer_state_str, sizeof(layer_state_str), "Layer:   Raise");
+        break;
+    case L_LOWER:
+        snprintf(layer_state_str, sizeof(layer_state_str), "Layer:   Lower");
+        break;
+    case L_ADJUST:
+    case L_ADJUST_TRI:
+        snprintf(layer_state_str, sizeof(layer_state_str), "Layer:   Adjust");
+        break;
+    default:
+        snprintf(layer_state_str, sizeof(layer_state_str), "Layer:   Undef-%ld", layer_state);
+    }
+
+    return layer_state_str;
+}
+
 const char *read_encoder_state(void) {
+    static char encoder_state_str[24];
     switch (encoder_mode) {
     case LEFTRIGHT:
         snprintf(encoder_state_str, sizeof(encoder_state_str), "Encoder: Left-right");
@@ -154,12 +183,21 @@ const char *read_encoder_state(void) {
     return encoder_state_str;
 }
 
-char wpm_str[24];
 const char *read_wpm(void) {
-    sprintf(wpm_str, "WPM:     %03d", get_current_wpm());
+    static char wpm_str[24];
+    static uint8_t  max_wpm = 0;
+    static uint32_t max_wpm_timer;
+
+    if (max_wpm && timer_elapsed32(max_wpm_timer) > 60000) // Expire maximum WPM record after 60 seconds
+        max_wpm = 0;
+    if (get_current_wpm() > max_wpm) {
+        max_wpm = get_current_wpm();
+        max_wpm_timer = timer_read32();
+    }
+    sprintf(wpm_str, "WPM:     %03d  (%03d)", get_current_wpm(), max_wpm);
+    sprintf(wpm_str, "WPM:     %03d  (%03d)", get_current_wpm(), max_wpm);
     return wpm_str;
 }
-
 
 void oled_task_user(void) {
   if (is_keyboard_master()) {
