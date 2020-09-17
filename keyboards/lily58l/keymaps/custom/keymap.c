@@ -195,30 +195,38 @@ const char *read_wpm(void) {
         max_wpm_timer = timer_read32();
     }
     sprintf(wpm_str, "WPM:     %03d  (%03d)", get_current_wpm(), max_wpm);
-    sprintf(wpm_str, "WPM:     %03d  (%03d)", get_current_wpm(), max_wpm);
     return wpm_str;
 }
 
 void oled_task_user(void) {
-  if (is_keyboard_master()) {
-    // If you want to change the display of OLED, you need to change here
-    oled_write_ln(read_default_layer_state(), false);
-    oled_write_ln(read_layer_state(), false);
-    oled_write_ln(read_encoder_state(), false);
-    //oled_write_ln(read_mode_icon(keymap_config.swap_lalt_lgui), false);
-    //oled_write_ln(read_host_led_state(), false);
-    // oled_write_ln(read_timelog(), false);
-    oled_write_ln(read_wpm(), false);
-  } else {
-    oled_write(read_logo(), false);
-  }
+    static uint32_t oled_task_timer;
+    // Only update the OLED at 10Hz. It is quite expensive and this greatly improves the scan rate.
+    if (timer_elapsed32(oled_task_timer) > 100) {
+        oled_task_timer = timer_read32();
+    } else {
+        return;
+    }
+
+    if (is_keyboard_master()) {
+        // If you want to change the display of OLED, you need to change here
+        oled_write_ln(read_default_layer_state(), false);
+        oled_write_ln(read_layer_state(), false);
+        oled_write_ln(read_encoder_state(), false);
+        oled_write_ln(read_wpm(), false);
+
+        // oled_write_ln(read_mode_icon(keymap_config.swap_lalt_lgui), false);
+        // oled_write_ln(read_host_led_state(), false);
+        // oled_write_ln(read_timelog(), false);
+    } else {
+        oled_write(read_logo(), false);
+    }
 }
 #endif // OLED_DRIVER_ENABLE
 
 void keyboard_post_init_user(void) {
     #ifdef CONSOLE_ENABLE
         debug_enable = true; // If debugging is compiled in then enable it to begin with
-        debug_matrix = true;
+        // debug_matrix = true;
         // debug_keyboard = true;
     #endif
 }
