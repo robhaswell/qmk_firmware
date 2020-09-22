@@ -84,10 +84,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                              KC_F11,  _______, _______, _______, _______, _______, _______, KC_F12 \
 ),
 [_ADJUST] = LAYOUT( \
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_BRMU, \
+  TOG_OS,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_BRMU, \
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_BRMD, \
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, RGB_MOD, RGB_HUI, RGB_SAI, RGB_VAI, \
-  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, TOG_OS,  RGB_RMOD,RGB_HUD, RGB_SAD, RGB_VAD,\
+  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, RGB_SAI, RGB_SPI, RGB_HUI, RGB_MOD, RGB_VAI, \
+  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, RGB_SAD, RGB_SPD, RGB_HUD, RGB_RMOD,RGB_VAD,\
                              _______, _______, _______, _______, _______,  _______, _______, RGB_TOG \
 )
 };
@@ -163,6 +163,12 @@ const char *read_layer_state(void) {
     return layer_state_str;
 }
 
+const char *read_rgblight_state(void) {
+    static char rgblight_state[24];
+    snprintf(rgblight_state, sizeof(rgblight_state), "RGB:     v%-3d s%1d m%-d", rgblight_config.val, rgblight_config.speed, rgblight_config.mode);
+    return rgblight_state;
+}
+
 const char *read_encoder_state(void) {
     static char encoder_state_str[24];
     switch (encoder_mode) {
@@ -210,9 +216,10 @@ void oled_task_user(void) {
     if (is_keyboard_master()) {
         // If you want to change the display of OLED, you need to change here
         oled_write_ln(read_default_layer_state(), false);
-        oled_write_ln(read_layer_state(), false);
+        // oled_write_ln(read_layer_state(), false);
         oled_write_ln(read_encoder_state(), false);
         oled_write_ln(read_wpm(), false);
+        oled_write_ln(read_rgblight_state(), false);
 
         // oled_write_ln(read_mode_icon(keymap_config.swap_lalt_lgui), false);
         // oled_write_ln(read_host_led_state(), false);
