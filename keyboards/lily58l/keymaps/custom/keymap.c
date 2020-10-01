@@ -163,11 +163,11 @@ const char *read_layer_state(void) {
     return layer_state_str;
 }
 
-const char *read_rgblight_state(void) {
-    static char rgblight_state[24];
-    snprintf(rgblight_state, sizeof(rgblight_state), "RGB:     v%-3d s%1d m%-d", rgblight_config.val, rgblight_config.speed, rgblight_config.mode);
-    return rgblight_state;
-}
+// const char *read_rgblight_state(void) {
+//     static char rgblight_state[24];
+//     snprintf(rgblight_state, sizeof(rgblight_state), "RGB:     v%-3d s%1d m%-d", rgblight_config.val, rgblight_config.speed, rgblight_config.mode);
+//     return rgblight_state;
+// }
 
 const char *read_encoder_state(void) {
     static char encoder_state_str[24];
@@ -219,7 +219,7 @@ void oled_task_user(void) {
         // oled_write_ln(read_layer_state(), false);
         oled_write_ln(read_encoder_state(), false);
         oled_write_ln(read_wpm(), false);
-        oled_write_ln(read_rgblight_state(), false);
+        // oled_write_ln(read_rgblight_state(), false);
 
         // oled_write_ln(read_mode_icon(keymap_config.swap_lalt_lgui), false);
         // oled_write_ln(read_host_led_state(), false);

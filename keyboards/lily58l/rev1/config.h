@@ -41,7 +41,8 @@
 
 #define RGBLED_NUM 70
 #define DRIVER_LED_TOTAL RGBLED_NUM
-#define RGBLIGHT_LIMIT_VAL 175
+#define RGB_MATRIX_MAXIMUM_BRIGHTNESS 100
+#define RGB_MATRIX_STARTUP_VAL 100
 
 /* Mechanical locking support. Use KC_LCAP, KC_LNUM or KC_LSCR instead in keymap */
 #define LOCKING_SUPPORT_ENABLE
