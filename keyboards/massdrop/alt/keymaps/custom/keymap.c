@@ -107,7 +107,11 @@ rgb_profile_t rgb_profiles[] = {
     /*** Rainbarf ***/
     [3] = {{ .enable=1, .mode=38, .hsv={ 244, 255, 255 }, .speed=120 },
            { .enable=0, .mode=0, .hsv={ 128, 232, 255 }, .speed=0 }},
+    /*** Cyberpunk ***/
+    [4] = {{ .enable=1, .mode=39, .hsv={ 36, 255, 255 }, .speed=12 },
+           { .enable=0, .mode=0, .hsv={ 140, 176, 255 }, .speed=248 }},
 };
+
 void set_profile(uint8_t profile) {
     rgb_matrix_config = rgb_profiles[profile].config;
     rgb_matrix_alt_config = rgb_profiles[profile].alt_config;
